@@ -3,6 +3,47 @@ const router = express.Router();
 const exceljs = require('exceljs');
 const xlsxPopulate = require('xlsx-populate');
 
+function moveCellsDown(sheet, startRow, numRows) {
+  // Переносим строки вниз начиная с конца
+  for (let i = sheet.rowCount; i >= startRow; i--) {
+    // Получаем исходную строку
+    const sourceRow = sheet.getRow(i);
+
+    // Создаем новую строку для переноса
+    const targetRowIndex = i + numRows;
+    let targetRow = sheet.getRow(targetRowIndex);
+    if (!targetRow) {
+      // Если строки не существует, создаем новую строку
+      sheet.spliceRows(targetRowIndex, 0, [{}]);
+      targetRow = sheet.getRow(targetRowIndex);
+    }
+
+    // Переносим каждую ячейку в строке
+    sourceRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+      const targetCell = targetRow.getCell(colNumber);
+
+      // Проверяем, является ли ячейка объединенной
+      if (cell.isMerged) {
+        // Находим главную (первую) ячейку в объединенной группе
+        const masterCell = sheet.getCell(cell.master.address);
+        if (masterCell === cell) {
+          // Копируем значение главной ячейки в целевую ячейку
+          targetCell.value = masterCell.value;
+          targetCell.style = masterCell.style;
+          targetCell.numFmt = masterCell.numFmt;
+          targetCell.border = masterCell.border;
+        }
+      } else {
+        // Копируем значение ячейки в целевую ячейку
+        targetCell.value = cell.value;
+        targetCell.style = cell.style;
+        targetCell.numFmt = cell.numFmt;
+        targetCell.border = cell.border;
+      }
+    });
+  }
+}
+
 router.post('/createExcel51', async function (req, res) {
   const tableData = req.body;
 
@@ -38,52 +79,6 @@ router.post('/createExcel51', async function (req, res) {
     if (rowIndex !== null) {
       console.log(`Строка с 5.1 найдена: ${rowIndex}`);
 
-      function moveCellsDown(sheet, startRow, numRows) {
-        // Переносим строки вниз начиная с конца
-        for (let i = sheet.rowCount; i >= startRow; i--) {
-          // Получаем строку
-          const sourceRow = sheet.getRow(i);
-
-          // Создаем новую строку для переноса
-          const targetRowNumber = i + numRows;
-          let targetRow = sheet.getRow(targetRowNumber);
-          if (!targetRow) {
-            // Если строки не существует, создаем новую строку
-            sheet.spliceRows(targetRowNumber, 0, [{}]);
-            targetRow = sheet.getRow(targetRowNumber);
-          }
-          targetRow.hidden = sourceRow.hidden;
-
-          // Переносим каждую ячейку в строке
-          sourceRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-            const targetCell = targetRow.getCell(colNumber);
-
-            // Проверяем наличие ячейки
-            if (cell && targetCell) {
-              // Копируем только главные ячейки объединенной группы
-              if (cell.isMerged && cell.master === cell) {
-                // Копируем данные из главной ячейки
-                targetCell.value = cell.value;
-                targetCell.style = cell.style;
-                targetCell.numFmt = cell.numFmt;
-                targetCell.border = cell.border;
-              }
-            }
-          });
-
-          // Очищаем исходную строку
-          // sourceRow.eachCell({ includeEmpty: true }, (cell) => {
-          //     cell.value = null;
-          //     cell.style = {};
-          //     cell.numFmt = null;
-          //     cell.border = {};
-          // });
-        }
-      }
-
-      // Пример использования функции
-      moveCellsDown(sheet, rowIndex + 1, 13);
-
       // Пример использования функции
       moveCellsDown(sheet, rowIndex + 1, 13);
 
@@ -106,6 +101,11 @@ router.post('/createExcel51', async function (req, res) {
         right: { style: 'thin' },
       };
       sheet.getCell(`B${rowIndex + 1}`).alignment = { vertical: 'middle', horizontal: 'center' };
+
+      for (let i = rowIndex + 1; i <= sheet.rowCount; i++) {
+        const cellB = sheet.getCell(`B${i}`);
+        cellB.alignment = { vertical: 'top', horizontal: 'left', wrapText: true };
+      }
       // Значения для столбца C
       sheet.getCell(`C${rowIndex + 1}`).value =
         'Призовые места по итогам командного первенства в номинациях';
@@ -143,7 +143,12 @@ router.post('/createExcel51', async function (req, res) {
       sheet.getCell(`E${rowIndex + 12}`).value = tableData.specialAwardsData;
       sheet.getCell(`E${rowIndex + 13}`).value = tableData.lackOfCompetitiveComponentData;
 
-      await workbook.xlsx.writeFile(filePath);
+      const currentDate = new Date();
+      const dateString = currentDate.toISOString().slice(0, 10); // Преобразовать текущую дату в строку формата "гггг-мм-дд"
+      const timeString = currentDate.toTimeString().slice(0, 8).replace(/:/g, '-'); // Преобразовать текущее время в строку и удалить двоеточия, заменив их на дефисы
+      const fileName = `table_${dateString}_${timeString}.xlsx`; // Имя файла с добавленной датой и временем
+
+      await workbook.xlsx.writeFile(fileName);
 
       console.log('Данные успешно вставлены после строки с значением 5.1.');
       res.send('Данные успешно вставлены');
