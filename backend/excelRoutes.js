@@ -80,68 +80,164 @@ router.post('/createExcel51', async function (req, res) {
       console.log(`Строка с 5.1 найдена: ${rowIndex}`);
 
       // Пример использования функции
-      moveCellsDown(sheet, rowIndex + 1, 13);
+      // moveCellsDown(sheet, rowIndex + 1, 13);
+      const newRow1Values = [
+        '5.1.1',
+        tableData.winner,
+        'Призовые места по итогам командного первенства в номинациях',
+        '1-х мест',
+        tableData.commandData1,
+      ];
+      const newRow2Values = ['', '', '', '2-х мест', tableData.commandData2];
+      const newRow3Values = ['', '', '', '3-х мест', tableData.commandData3];
+      const newRow4Values = [
+        '',
+        '',
+        'Призовые места по итогам командного первенства в номинациях',
+        '1-х мест',
+        tableData.commandData11,
+      ];
+      const newRow5Values = ['', '', '', '2-х мест', tableData.commandData21];
+      const newRow6Values = ['', '', '', '3-х мест', tableData.commandData31];
+      const newRow7Values = [
+        '',
+        '',
+        'Призовые места по итогам личного первенства в номинациях',
+        '1-х мест',
+        tableData.personalData1,
+      ];
+      const newRow8Values = ['', '', '', '2-х мест', tableData.personalData2];
+      const newRow9Values = ['', '', '', '3-х мест', tableData.personalData3];
+      const newRow10Values = ['', '', 'Гран При', '', tableData.grandPrizeData];
+      const newRow11Values = [
+        '',
+        '',
+        'Приз за отдельные достижения',
+        '',
+        tableData.individualAchievementData,
+      ];
+      const newRow12Values = [
+        '',
+        '',
+        'Побед в специальных номинациях',
+        '',
+        tableData.specialAwardsData,
+      ];
+      const newRow13Values = [
+        '',
+        '',
+        'Отсутствие соревновательной составляющей',
+        '',
+        tableData.lackOfCompetitiveComponentData,
+      ];
 
       // Форматирование ячейки A1
-      const cellA1 = sheet.getCell(`A${rowIndex + 1}`);
-      cellA1.value = '5.1.1';
-      // cellA1.numFmt = '0.00';
-      cellA1.border = {
-        top: { style: 'thin' },
-        left: { style: 'thin' },
-        bottom: { style: 'thin' },
-        right: { style: 'thin' },
-      };
-      // Значения для столбца B
-      sheet.getCell(`B${rowIndex + 1}`).value = tableData.winner;
-      sheet.getCell(`B${rowIndex + 1}`).border = {
-        top: { style: 'thin' },
-        left: { style: 'thin' },
-        bottom: { style: 'thin' },
-        right: { style: 'thin' },
-      };
-      sheet.getCell(`B${rowIndex + 1}`).alignment = { vertical: 'middle', horizontal: 'center' };
 
-      for (let i = rowIndex + 1; i <= sheet.rowCount; i++) {
-        const cellB = sheet.getCell(`B${i}`);
-        cellB.alignment = { vertical: 'top', horizontal: 'left', wrapText: true };
+      sheet.spliceRows(rowIndex + 1, 0, newRow1Values);
+      sheet.spliceRows(rowIndex + 2, 0, newRow2Values);
+      sheet.spliceRows(rowIndex + 3, 0, newRow3Values);
+      sheet.spliceRows(rowIndex + 4, 0, newRow4Values);
+      sheet.spliceRows(rowIndex + 5, 0, newRow5Values);
+      sheet.spliceRows(rowIndex + 6, 0, newRow6Values);
+      sheet.spliceRows(rowIndex + 7, 0, newRow7Values);
+      sheet.spliceRows(rowIndex + 8, 0, newRow8Values);
+      sheet.spliceRows(rowIndex + 9, 0, newRow9Values);
+      sheet.spliceRows(rowIndex + 10, 0, newRow10Values);
+      sheet.spliceRows(rowIndex + 11, 0, newRow11Values);
+      sheet.spliceRows(rowIndex + 12, 0, newRow12Values);
+      sheet.spliceRows(rowIndex + 13, 0, newRow13Values);
+      const startRowIndex = rowIndex + 1;
+      const endRowIndex = rowIndex + 13;
+
+      for (let i = startRowIndex; i <= endRowIndex; i++) {
+        for (let j = startRowIndex; j <= endRowIndex; j++) {
+          if (i !== j) {
+            sheet.unMergeCells(`A${i}:A${j}`);
+            sheet.unMergeCells(`B${i}:B${j}`);
+            sheet.unMergeCells(`C${i}:C${j}`);
+            sheet.unMergeCells(`D${i}:D${j}`);
+            sheet.unMergeCells(`E${i}:E${j}`);
+            sheet.unMergeCells(`F${i}:F${j}`);
+            sheet.unMergeCells(`G${i}:G${j}`);
+          }
+        }
       }
-      // Значения для столбца C
-      sheet.getCell(`C${rowIndex + 1}`).value =
-        'Призовые места по итогам командного первенства в номинациях';
-      sheet.getCell(`C${rowIndex + 4}`).value =
-        'Призовые места по итогам командного первенства в номинациях';
-      sheet.getCell(`C${rowIndex + 7}`).value =
-        'Призовые места по итогам личного первенства в номинациях';
-      sheet.getCell(`C${rowIndex + 10}`).value = 'Гран При';
-      sheet.getCell(`C${rowIndex + 11}`).value = 'Приз за отдельные достижения';
-      sheet.getCell(`C${rowIndex + 12}`).value = 'Побед в специальных номинациях';
-      sheet.getCell(`C${rowIndex + 13}`).value = 'Отсутствие соревновательной составляющей';
 
-      sheet.getCell(`D${rowIndex + 1}`).value = '1-х мест';
-      sheet.getCell(`D${rowIndex + 2}`).value = '2-х мест';
-      sheet.getCell(`D${rowIndex + 3}`).value = '3-х мест';
-      sheet.getCell(`D${rowIndex + 4}`).value = '1-х мест';
-      sheet.getCell(`D${rowIndex + 5}`).value = '2-х мест';
-      sheet.getCell(`D${rowIndex + 6}`).value = '3-х мест';
-      sheet.getCell(`D${rowIndex + 7}`).value = '1-х мест';
-      sheet.getCell(`D${rowIndex + 8}`).value = '2-х мест';
-      sheet.getCell(`D${rowIndex + 9}`).value = '3-х мест';
+      sheet.mergeCells(`A${rowIndex + 1}:A${rowIndex + 13}`);
+      sheet.mergeCells(`B${rowIndex + 1}:B${rowIndex + 13}`);
+      sheet.mergeCells(`C${rowIndex + 1}:C${rowIndex + 3}`);
+      sheet.mergeCells(`C${rowIndex + 4}:C${rowIndex + 6}`);
+      sheet.mergeCells(`C${rowIndex + 7}:C${rowIndex + 9}`);
+      sheet.mergeCells(`C${rowIndex + 10}:D${rowIndex + 10}`);
+      sheet.mergeCells(`C${rowIndex + 11}:D${rowIndex + 11}`);
+      sheet.mergeCells(`C${rowIndex + 12}:D${rowIndex + 12}`);
+      sheet.mergeCells(`C${rowIndex + 13}:D${rowIndex + 13}`);
 
-      // Значения для столбца E
-      sheet.getCell(`E${rowIndex + 1}`).value = tableData.commandData1;
-      sheet.getCell(`E${rowIndex + 2}`).value = tableData.commandData2;
-      sheet.getCell(`E${rowIndex + 3}`).value = tableData.commandData3;
-      sheet.getCell(`E${rowIndex + 4}`).value = tableData.commandData11;
-      sheet.getCell(`E${rowIndex + 5}`).value = tableData.commandData21;
-      sheet.getCell(`E${rowIndex + 6}`).value = tableData.commandData31;
-      sheet.getCell(`E${rowIndex + 7}`).value = tableData.personalData1;
-      sheet.getCell(`E${rowIndex + 8}`).value = tableData.personalData2;
-      sheet.getCell(`E${rowIndex + 9}`).value = tableData.personalData3;
-      sheet.getCell(`E${rowIndex + 10}`).value = tableData.grandPrizeData;
-      sheet.getCell(`E${rowIndex + 11}`).value = tableData.individualAchievementData;
-      sheet.getCell(`E${rowIndex + 12}`).value = tableData.specialAwardsData;
-      sheet.getCell(`E${rowIndex + 13}`).value = tableData.lackOfCompetitiveComponentData;
+      for (let i = rowIndex + 1; i <= endRowIndex; i++) {
+        const cellA = sheet.getCell(`A${i}`);
+        const cellB = sheet.getCell(`B${i}`);
+        const cellC = sheet.getCell(`C${i}`);
+        const cellD = sheet.getCell(`D${i}`);
+        const cellE = sheet.getCell(`E${i}`);
+        const cellF = sheet.getCell(`F${i}`);
+        const cellG = sheet.getCell(`G${i}`);
+
+        // Применяем стили к ячейке A
+        cellA.style.font = {
+          name: 'Times New Roman',
+          size: 12,
+        };
+        cellA.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+
+        // Применяем стили к ячейке B
+        cellB.style.font = {
+          italic: true,
+          name: 'Times New Roman',
+          size: 12,
+        };
+        cellB.alignment = {
+          vertical: 'top',
+          horizontal: 'left',
+          wrapText: true,
+        };
+        cellB.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+
+        // Применяем стили к ячейке C
+        cellC.style.font = {
+          name: 'Times New Roman',
+          size: 12,
+        };
+        cellC.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+
+        // Применяем стили к ячейкам D, E, F, G
+        [cellD, cellE, cellF, cellG].forEach((cell) => {
+          cell.style.font = {
+            name: 'Times New Roman',
+            size: 12,
+          };
+          cell.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+          };
+        });
+      }
 
       const currentDate = new Date();
       const dateString = currentDate.toISOString().slice(0, 10); // Преобразовать текущую дату в строку формата "гггг-мм-дд"
