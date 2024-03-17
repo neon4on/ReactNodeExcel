@@ -3,118 +3,143 @@ const router = express.Router();
 const exceljs = require('exceljs');
 const xlsxPopulate = require('xlsx-populate');
 
-function moveCellsDown(sheet, startRow, numRows) {
-  // Переносим строки вниз начиная с конца
-  for (let i = sheet.rowCount; i >= startRow; i--) {
-    // Получаем исходную строку
-    const sourceRow = sheet.getRow(i);
-
-    // Создаем новую строку для переноса
-    const targetRowIndex = i + numRows;
-    let targetRow = sheet.getRow(targetRowIndex);
-    if (!targetRow) {
-      // Если строки не существует, создаем новую строку
-      sheet.spliceRows(targetRowIndex, 0, [{}]);
-      targetRow = sheet.getRow(targetRowIndex);
-    }
-
-    // Переносим каждую ячейку в строке
-    sourceRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-      const targetCell = targetRow.getCell(colNumber);
-
-      // Проверяем, является ли ячейка объединенной
-      if (cell.isMerged) {
-        // Находим главную (первую) ячейку в объединенной группе
-        const masterCell = sheet.getCell(cell.master.address);
-        if (masterCell === cell) {
-          // Копируем значение главной ячейки в целевую ячейку
-          targetCell.value = masterCell.value;
-          targetCell.style = masterCell.style;
-          targetCell.numFmt = masterCell.numFmt;
-          targetCell.border = masterCell.border;
-        }
-      } else {
-        // Копируем значение ячейки в целевую ячейку
-        targetCell.value = cell.value;
-        targetCell.style = cell.style;
-        targetCell.numFmt = cell.numFmt;
-        targetCell.border = cell.border;
-      }
-    });
-  }
-}
-
 router.post('/createExcel51', async function (req, res) {
   const tableData = req.body;
 
   try {
     const workbook = new exceljs.Workbook();
-    const filePath = 'example.xlsx'; // Путь к файлу
+    const filePath = 'example.xlsx';
 
     await workbook.xlsx.readFile(filePath);
 
-    const sheet = workbook.getWorksheet('ЦОВУ'); // Получение доступа к странице "ЦОВУ"
+    const sheet = workbook.getWorksheet('Лист1');
 
     if (sheet) {
-      console.log('Страница "ЦОВУ" найдена.');
-
-      // Ваша логика работы с листом
+      console.log('Страница "Лист1" найдена.');
     } else {
-      console.log('Страница "ЦОВУ" не найдена.');
+      console.log('Страница "Лист1" не найдена.');
     }
 
-    // Находим индекс строки по значению в столбце A
     let rowIndex = null;
+    let rowEndIndex = null;
 
     sheet.eachRow({ includeEmpty: false }, (row, index) => {
       const rowData = row.getCell(1).value;
-      // console.log(`Значение в строке ${index}: ${rowData}`);
-
       if (rowData == 5.1 || rowData == '5,1' || rowData == '5.1') {
         rowIndex = index;
         console.log(`Значение 5.1 найдено в строке ${index}.`);
+      }
+      if (rowData == 5.2 || rowData == '5,2' || rowData == '5.2') {
+        rowEndIndex = index;
+        console.log(`Значение 5.2 найдено в строке ${index}.`);
       }
     });
 
     if (rowIndex !== null) {
       console.log(`Строка с 5.1 найдена: ${rowIndex}`);
 
-      // Пример использования функции
-      // moveCellsDown(sheet, rowIndex + 1, 13);
+      const startRowIndex = rowIndex + 1;
+      const endRowIndex = rowIndex + 13;
+
+      let j = 0;
+      for (let i = startRowIndex + 1; i < rowEndIndex; i++) {
+        if (j % 13 == 0) {
+          const rowData = sheet.getCell(`A${i}`).value;
+          const parts = rowData.split('.');
+          const number = parseInt(parts[2]);
+          parts[2] = (number + 1).toString();
+          sheet.getCell(`A${i}`).value = parts.join('.');
+        }
+        j++;
+      }
+
       const newRow1Values = [
         '5.1.1',
         tableData.winner,
         'Призовые места по итогам командного первенства в номинациях',
         '1-х мест',
         tableData.commandData1,
+        tableData.commandData1 * 30,
       ];
-      const newRow2Values = ['', '', '', '2-х мест', tableData.commandData2];
-      const newRow3Values = ['', '', '', '3-х мест', tableData.commandData3];
+      const newRow2Values = [
+        '',
+        '',
+        '',
+        '2-х мест',
+        tableData.commandData2,
+        tableData.commandData2 * 25,
+      ];
+      const newRow3Values = [
+        '',
+        '',
+        '',
+        '3-х мест',
+        tableData.commandData3,
+        tableData.commandData3 * 20,
+      ];
       const newRow4Values = [
         '',
         '',
         'Призовые места по итогам командного первенства в номинациях',
         '1-х мест',
         tableData.commandData11,
+        tableData.commandData11 * 10,
       ];
-      const newRow5Values = ['', '', '', '2-х мест', tableData.commandData21];
-      const newRow6Values = ['', '', '', '3-х мест', tableData.commandData31];
+      const newRow5Values = [
+        '',
+        '',
+        '',
+        '2-х мест',
+        tableData.commandData21,
+        tableData.commandData21 * 8,
+      ];
+      const newRow6Values = [
+        '',
+        '',
+        '',
+        '3-х мест',
+        tableData.commandData31,
+        tableData.commandData31 * 6,
+      ];
       const newRow7Values = [
         '',
         '',
         'Призовые места по итогам личного первенства в номинациях',
         '1-х мест',
         tableData.personalData1,
+        tableData.personalData1 * 5,
       ];
-      const newRow8Values = ['', '', '', '2-х мест', tableData.personalData2];
-      const newRow9Values = ['', '', '', '3-х мест', tableData.personalData3];
-      const newRow10Values = ['', '', 'Гран При', '', tableData.grandPrizeData];
+      const newRow8Values = [
+        '',
+        '',
+        '',
+        '2-х мест',
+        tableData.personalData2,
+        tableData.personalData2 * 4,
+      ];
+      const newRow9Values = [
+        '',
+        '',
+        '',
+        '3-х мест',
+        tableData.personalData3,
+        tableData.personalData3 * 3,
+      ];
+      const newRow10Values = [
+        '',
+        '',
+        'Гран При',
+        '',
+        tableData.grandPrizeData,
+        tableData.grandPrizeData * 15,
+      ];
       const newRow11Values = [
         '',
         '',
         'Приз за отдельные достижения',
         '',
         tableData.individualAchievementData,
+        tableData.individualAchievementData * 5,
       ];
       const newRow12Values = [
         '',
@@ -122,6 +147,7 @@ router.post('/createExcel51', async function (req, res) {
         'Побед в специальных номинациях',
         '',
         tableData.specialAwardsData,
+        tableData.specialAwardsData * 2,
       ];
       const newRow13Values = [
         '',
@@ -129,9 +155,8 @@ router.post('/createExcel51', async function (req, res) {
         'Отсутствие соревновательной составляющей',
         '',
         tableData.lackOfCompetitiveComponentData,
+        tableData.lackOfCompetitiveComponentData * 15,
       ];
-
-      // Форматирование ячейки A1
 
       sheet.spliceRows(rowIndex + 1, 0, newRow1Values);
       sheet.spliceRows(rowIndex + 2, 0, newRow2Values);
@@ -146,8 +171,6 @@ router.post('/createExcel51', async function (req, res) {
       sheet.spliceRows(rowIndex + 11, 0, newRow11Values);
       sheet.spliceRows(rowIndex + 12, 0, newRow12Values);
       sheet.spliceRows(rowIndex + 13, 0, newRow13Values);
-      const startRowIndex = rowIndex + 1;
-      const endRowIndex = rowIndex + 13;
 
       for (let i = startRowIndex; i <= endRowIndex; i++) {
         for (let j = startRowIndex; j <= endRowIndex; j++) {
@@ -182,7 +205,6 @@ router.post('/createExcel51', async function (req, res) {
         const cellF = sheet.getCell(`F${i}`);
         const cellG = sheet.getCell(`G${i}`);
 
-        // Применяем стили к ячейке A
         cellA.style.font = {
           name: 'Times New Roman',
           size: 12,
@@ -193,8 +215,8 @@ router.post('/createExcel51', async function (req, res) {
           bottom: { style: 'thin' },
           right: { style: 'thin' },
         };
+        cellA.alignment = { vertical: 'middle', horizontal: 'center' };
 
-        // Применяем стили к ячейке B
         cellB.style.font = {
           italic: true,
           name: 'Times New Roman',
@@ -212,7 +234,6 @@ router.post('/createExcel51', async function (req, res) {
           right: { style: 'thin' },
         };
 
-        // Применяем стили к ячейке C
         cellC.style.font = {
           name: 'Times New Roman',
           size: 12,
@@ -223,9 +244,13 @@ router.post('/createExcel51', async function (req, res) {
           bottom: { style: 'thin' },
           right: { style: 'thin' },
         };
+        cellC.alignment = {
+          vertical: 'middle',
+          horizontal: 'left',
+          wrapText: true,
+        };
 
-        // Применяем стили к ячейкам D, E, F, G
-        [cellD, cellE, cellF, cellG].forEach((cell) => {
+        [cellA, cellD, cellE, cellF, cellG].forEach((cell) => {
           cell.style.font = {
             name: 'Times New Roman',
             size: 12,
@@ -237,12 +262,16 @@ router.post('/createExcel51', async function (req, res) {
             right: { style: 'thin' },
           };
         });
+        cellG.border = { right: { style: 'thick' }, bottom: { style: 'thin' } };
+        cellA.border = { left: { style: 'thick' } };
+        cellE.alignment = { vertical: 'middle', horizontal: 'center' };
+        cellF.alignment = { vertical: 'middle', horizontal: 'center' };
       }
 
       const currentDate = new Date();
-      const dateString = currentDate.toISOString().slice(0, 10); // Преобразовать текущую дату в строку формата "гггг-мм-дд"
-      const timeString = currentDate.toTimeString().slice(0, 8).replace(/:/g, '-'); // Преобразовать текущее время в строку и удалить двоеточия, заменив их на дефисы
-      const fileName = `table_${dateString}_${timeString}.xlsx`; // Имя файла с добавленной датой и временем
+      const dateString = currentDate.toISOString().slice(0, 10);
+      const timeString = currentDate.toTimeString().slice(0, 8).replace(/:/g, '-');
+      const fileName = `table_${dateString}_${timeString}.xlsx`;
 
       await workbook.xlsx.writeFile(fileName);
 
@@ -258,278 +287,593 @@ router.post('/createExcel51', async function (req, res) {
 
 router.post('/createExcel54', async (req, res) => {
   const tableData = req.body;
-  console.dir(req.body);
+  const arr = ['5.4.1', '5.4.2', '5.4.3', '5.4.4', 5.5];
+  const ratio = {
+    '5.4.1': [],
+    '5.4.2': [5, 3, 2, 0.5],
+    '5.4.3': [10, 6, 5, 0.5],
+    '5.4.4': [20, 15, 12, 0.5],
+    5.5: [30, 20, 18, 0.5],
+  };
+  try {
+    const workbook = new exceljs.Workbook();
+    const filePath = 'example.xlsx';
 
-  const arr = [
-    'Муниципальных соревнований',
-    'Региональных соревнований',
-    'Всероссийских соревнований',
-    'Международных соревнований',
-  ];
+    await workbook.xlsx.readFile(filePath);
 
-  let valueShort = null;
-  let flagShort = false;
-  async function insertDataAfterRow(filePath, sheetName, columnAValue, columnBValue) {
-    try {
-      const workbook = await xlsxPopulate.fromFileAsync(filePath);
-      const sheet = workbook.sheet(sheetName);
+    const sheet = workbook.getWorksheet('Лист1');
 
-      // Находим индекс строки по значению в столбце A
-      let rowIndex = null;
-      let columnIndexB = null;
+    if (sheet) {
+      console.log('Страница "Лист1" найдена.');
+    } else {
+      console.log('Страница "Лист1" не найдена.');
+    }
 
-      for (let i = 0; i <= arr.length; i++) {
-        if (columnBValue == arr[i]) {
-          if (i < arr.length - 1) {
-            valueShort = arr[i + 1];
-            flagShort = true;
-          } else {
-            valueShort = arr[i];
+    let rowIndex = null;
+    let rowEnd = null;
+    let rowEndRatio = null;
+    let rowEndIndex = null;
+    let flagSearch = true;
+    let endFlagSearch = true;
+
+    for (let i = 0; i < arr.length; i++) {
+      const currentKey = arr[i];
+      if (tableData.select === currentKey && ratio.hasOwnProperty(currentKey)) {
+        rowEnd = arr[i + 1];
+        if (ratio.hasOwnProperty(rowEnd)) {
+          rowEndRatio = ratio[rowEnd];
+        }
+        break;
+      }
+    }
+
+    console.log(rowEndRatio);
+
+    sheet.eachRow({ includeEmpty: false }, (row, index) => {
+      const rowData = row.getCell(1).value;
+      if (rowData == tableData.select && flagSearch) {
+        rowIndex = index;
+        console.log(`Значение ${tableData.select} найдено в строке ${index}.`);
+        flagSearch = false;
+      }
+      if (rowData == rowEnd && endFlagSearch) {
+        rowEndIndex = index;
+        console.log(`Значение ${rowEnd} найдено в строке ${index}.`);
+        endFlagSearch = false;
+      }
+    });
+
+    if (rowIndex !== null) {
+      const startRowIndex = rowIndex + 1;
+      const endRowIndex = rowIndex + 3;
+
+      const newRow1Values = [
+        '',
+        tableData.winner,
+        'Побед',
+        '1-х мест',
+        tableData.commandData1,
+        tableData.commandData1 * rowEndRatio[0],
+      ];
+      const newRow2Values = [
+        '',
+        '',
+        'Призовых мест',
+        '2-х мест',
+        tableData.commandData2,
+        tableData.commandData2 * rowEndRatio[1],
+      ];
+      const newRow3Values = [
+        '',
+        '',
+        'Отсутствие соревновательной составляющей',
+        '3-х мест',
+        tableData.commandData3,
+        tableData.commandData3 * rowEndRatio[2],
+      ];
+
+      sheet.unMergeCells(`A${rowIndex}:A${rowEndIndex - 1}`);
+
+      sheet.spliceRows(rowIndex + 1, 0, newRow1Values);
+      sheet.spliceRows(rowIndex + 2, 0, newRow2Values);
+      sheet.spliceRows(rowIndex + 3, 0, newRow3Values);
+
+      for (let i = startRowIndex; i <= endRowIndex; i++) {
+        for (let j = startRowIndex; j <= endRowIndex; j++) {
+          if (i !== j) {
+            sheet.unMergeCells(`A${i}:A${j}`);
+            sheet.unMergeCells(`B${i}:B${j}`);
+            sheet.unMergeCells(`C${i}:C${j}`);
+            sheet.unMergeCells(`D${i}:D${j}`);
+            sheet.unMergeCells(`E${i}:E${j}`);
+            sheet.unMergeCells(`F${i}:F${j}`);
+            sheet.unMergeCells(`G${i}:G${j}`);
           }
         }
       }
+      sheet.unMergeCells(`A${rowEndIndex - 1}:A${rowEndIndex + 2}`);
+      sheet.mergeCells(`A${rowIndex}:A${rowEndIndex + 2}`);
+      sheet.mergeCells(`B${rowIndex + 1}:B${rowIndex + 3}`);
+      sheet.mergeCells(`C${rowIndex + 1}:D${rowIndex + 1}`);
+      sheet.mergeCells(`C${rowIndex + 2}:D${rowIndex + 2}`);
+      sheet.mergeCells(`C${rowIndex + 3}:D${rowIndex + 3}`);
 
-      sheet
-        .usedRange()
-        .value()
-        .forEach((row, index) => {
-          if (row.includes(6.4) || row.includes('6,4') || row.includes('6.4')) {
-            rowIndex = index + 1;
-            console.log(`Значение ${columnAValue} найдено в столбце A.`);
-          }
-          if (row.includes(columnBValue)) {
-            columnIndexB = index + 1;
-            console.log(`Значение ${columnBValue} найдено в строке.`);
-          }
+      for (let i = rowIndex + 1; i <= endRowIndex; i++) {
+        const cellA = sheet.getCell(`A${i}`);
+        const cellB = sheet.getCell(`B${i}`);
+        const cellC = sheet.getCell(`C${i}`);
+        const cellD = sheet.getCell(`D${i}`);
+        const cellE = sheet.getCell(`E${i}`);
+        const cellF = sheet.getCell(`F${i}`);
+        const cellG = sheet.getCell(`G${i}`);
 
-          if (row.includes(valueShort)) {
-            valueShort = index + 1;
-            console.log(`Значение ${valueShort} найдено в строке.`);
-          }
+        cellA.style.font = {
+          name: 'Times New Roman',
+          size: 12,
+        };
+        cellA.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+        cellA.alignment = { vertical: 'middle', horizontal: 'center' };
+
+        cellB.style.font = {
+          italic: true,
+          name: 'Times New Roman',
+          size: 12,
+        };
+        cellB.alignment = {
+          vertical: 'top',
+          horizontal: 'left',
+          wrapText: true,
+        };
+        cellB.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+
+        cellC.style.font = {
+          name: 'Times New Roman',
+          size: 12,
+        };
+        cellC.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+        cellC.alignment = {
+          vertical: 'middle',
+          horizontal: 'left',
+          wrapText: true,
+        };
+
+        [cellD, cellE, cellF, cellG].forEach((cell) => {
+          cell.style.font = {
+            name: 'Times New Roman',
+            size: 12,
+          };
+          cell.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+          };
         });
-
-      if (rowIndex !== null && columnIndexB !== null && valueShort !== null) {
-        // Вставляем новые данные в строку следующую за найденной
-
-        console.log(rowIndex + ' A');
-        console.log(columnIndexB + ' B');
-        console.log(valueShort + ' Short');
-        const value = sheet.usedRange().value().length;
-        console.log(value + ' END');
-
-        // for (let i = value; i >= columnIndexB; i--) {
-        //   const sourceRow = sheet.row(i);
-        //   const targetRow = sheet.row(i + 3);
-        //   // Копирование стилей ячеек
-        //   // Копирование стилей ячеек
-        //   for (let j = 1; j <= value; j++) {
-        //     const sourceCell = sourceRow.cell(j);
-        //     const targetCell = targetRow.cell(j);
-        //     const sourceStyle = sourceCell.style();
-        //     targetCell.style({
-        //       fontName: sourceStyle.fontName(),
-        //       bold: sourceStyle.bold(),
-        //       italic: sourceStyle.italic(),
-        //       // Добавьте другие свойства стиля по необходимости
-        //     });
-        //   }
-        // }
-        sheet.getColumn('A').eachCell({ includeEmpty: true }, (cell) => {
-          cell.style({ numberFormat: '0.00' });
-        });
-        // Значения для столбца B
-        sheet.cell(`B${columnIndexB + 1}`).value(tableData.winner);
-
-        // Значения для столбца C
-        sheet.cell(`C${columnIndexB + 1}`).value('Побед');
-        sheet.cell(`C${columnIndexB + 2}`).value('Призовых мест');
-        sheet.cell(`C${columnIndexB + 3}`).value('Отсутствие соревновательной составляющей');
-
-        // Значения для столбца E
-        sheet.cell(`E${columnIndexB + 1}`).value(tableData.commandData1);
-        sheet.cell(`E${columnIndexB + 2}`).value(tableData.commandData2);
-        sheet.cell(`E${columnIndexB + 3}`).value(tableData.commandData3);
-
-        // Сохраняем изменения в файл
-        await workbook.toFileAsync(filePath);
-
-        console.log('Данные успешно вставлены после строки с значением', columnAValue);
-      } else {
-        console.log(`Значение ${columnAValue} или ${columnBValue} не найдено.`);
+        cellG.border = { right: { style: 'thick' }, bottom: { style: 'thin' } };
+        cellA.border = { left: { style: 'thick' } };
+        cellE.alignment = { vertical: 'middle', horizontal: 'center' };
+        cellF.alignment = { vertical: 'middle', horizontal: 'center' };
       }
-    } catch (error) {
-      console.error('Ошибка при вставке данных:', error);
-    }
-  }
 
-  // Пример использования функции
-  const filePath = 'example.xlsx';
-  const sheetName = 'ЦОВУ';
-  const columnAValue = 5.4;
-  const columnBValue = tableData.select;
-  await insertDataAfterRow(filePath, sheetName, columnAValue, columnBValue);
+      const currentDate = new Date();
+      const dateString = currentDate.toISOString().slice(0, 10);
+      const timeString = currentDate.toTimeString().slice(0, 8).replace(/:/g, '-');
+      const fileName = `table_${dateString}_${timeString}.xlsx`;
+
+      await workbook.xlsx.writeFile(fileName);
+
+      console.log('Данные успешно вставлены после строки с значением 5.4.');
+      res.send('Данные успешно вставлены');
+    } else {
+      console.log('Строка с 5.4 не найдена.');
+    }
+  } catch (error) {
+    console.error('Ошибка при создании Excel файла:', error);
+  }
 });
 
 router.post('/createExcel64', async (req, res) => {
-  // const tableData = req.body;
-
-  // const workbook = new exceljs.Workbook();
-  // const sheet = workbook.addWorksheet('Sheet 1');
-
-  // // sheet.mergeCells('B1', 'D1');
-
-  // sheet.getCell('A1').value = tableData.select;
-
-  // sheet.getCell('B1').value = tableData.winner;
-
-  // sheet.getCell('E1').value = tableData.commandData1;
   const tableData = req.body;
-  console.dir(req.body);
+  const arr = ['6.4.2', '6.4.3', '6.5'];
+  const ratio = {
+    '6.4.2': [],
+    '6.4.3': [5],
+    6.5: [50],
+  };
+  try {
+    const workbook = new exceljs.Workbook();
+    const filePath = 'example.xlsx';
 
-  const arr = ['Регионального уровня', 'Всероссийского уровня'];
+    await workbook.xlsx.readFile(filePath);
 
-  let valueShort = null;
-  let flagShort = false;
-  async function insertDataAfterRow(filePath, sheetName, columnAValue, columnBValue) {
-    try {
-      const workbook = await xlsxPopulate.fromFileAsync(filePath);
-      const sheet = workbook.sheet(sheetName);
+    const sheet = workbook.getWorksheet('Лист1');
 
-      // Находим индекс строки по значению в столбце A
-      let rowIndex = null;
-      let columnIndexB = null;
-
-      for (let i = 0; i < arr.length; i++) {
-        if (columnBValue == arr[i]) {
-          if (i < arr.length - 1) {
-            valueShort = arr[i + 1];
-            flagShort = true;
-          } else {
-            valueShort = arr[i];
-          }
-        }
-      }
-
-      sheet
-        .usedRange()
-        .value()
-        .forEach((row, index) => {
-          if (row.includes(6.4) || row.includes('6,4') || row.includes('6.4')) {
-            rowIndex = index + 1;
-            console.log(`Значение ${columnAValue} найдено в столбце A.`);
-          }
-          if (row.includes(columnBValue)) {
-            columnIndexB = index + 1;
-            console.log(`Значение ${columnBValue} найдено в строке.`);
-          }
-
-          if (row.includes(valueShort)) {
-            valueShort = index + 1;
-            console.log(`Значение ${valueShort} найдено в строке.`);
-          }
-        });
-
-      if (rowIndex !== null && columnIndexB !== null && valueShort !== null) {
-        // Вставляем новые данные в строку следующую за найденной
-        console.log(rowIndex + ' A');
-        console.log(columnIndexB + ' B');
-        console.log(valueShort + ' Short');
-        const value = sheet.usedRange().value().length;
-        console.log(value + ' END');
-
-        // Применение стиля к столбцу A
-        // Применение стиля к столбцу A
-        const usedRange = sheet.usedRange();
-        for (let rowIndex = 0; rowIndex < usedRange.rowCount; rowIndex++) {
-          const cell = sheet.cell(rowIndex + 1, 1);
-          cell.style({ numberFormat: '0.0' });
-        }
-
-        for (let rowIndex = 0; rowIndex < usedRange.rowCount; rowIndex++) {
-          const cellValue = sheet.cell(rowIndex + 1, 1).value();
-          if (typeof cellValue === 'number') {
-            // Если значение ячейки является числом, заменяем запятую на точку
-            const updatedValue = cellValue.toString().replace(',', '.');
-            sheet.cell(rowIndex + 1, 1).value(updatedValue);
-          }
-        }
-
-        // Применяем стили и форматирование для чисел
-
-        // Значения для столбца B
-        sheet.cell(`B${columnIndexB + 1}`).value(tableData.winner);
-
-        // Значения для столбца C
-        sheet.cell(`C${columnIndexB + 1}`).value('Побед');
-        sheet.cell(`C${columnIndexB + 2}`).value('Призовых мест');
-        sheet.cell(`C${columnIndexB + 3}`).value('Отсутствие соревновательной составляющей');
-
-        // Значения для столбца E
-        sheet.cell(`E${columnIndexB + 1}`).value(tableData.commandData1);
-        sheet.cell(`E${columnIndexB + 2}`).value(tableData.commandData2);
-        sheet.cell(`E${columnIndexB + 3}`).value(tableData.commandData3);
-
-        // Сохраняем изменения в файл
-        await workbook.toFileAsync(filePath);
-
-        console.log('Данные успешно вставлены после строки с значением', columnAValue);
-      } else {
-        console.log(`Значение ${columnAValue} или ${columnBValue} не найдено.`);
-      }
-    } catch (error) {
-      console.error('Ошибка при вставке данных:', error);
+    if (sheet) {
+      console.log('Страница "Лист1" найдена.');
+    } else {
+      console.log('Страница "Лист1" не найдена.');
     }
-  }
 
-  const filePath = 'example.xlsx';
-  const sheetName = 'ЦОВУ';
-  const columnAValue = 6.4;
-  const columnBValue = tableData.select;
-  await insertDataAfterRow(filePath, sheetName, columnAValue, columnBValue);
+    let rowIndex = null;
+    let rowEnd = null;
+    let rowEndRatio = null;
+    let rowEndIndex = null;
+    let flagSearch = true;
+    let endFlagSearch = true;
+
+    for (let i = 0; i < arr.length; i++) {
+      const currentKey = arr[i];
+      if (tableData.select === currentKey && ratio.hasOwnProperty(currentKey)) {
+        rowEnd = arr[i + 1];
+        if (ratio.hasOwnProperty(rowEnd)) {
+          rowEndRatio = ratio[rowEnd];
+        }
+        break;
+      }
+    }
+
+    sheet.eachRow({ includeEmpty: false }, (row, index) => {
+      const rowData = row.getCell(1).value;
+      if (rowData == tableData.select && flagSearch) {
+        rowIndex = index;
+        console.log(`Значение ${tableData.select} найдено в строке ${index}.`);
+        flagSearch = false;
+      }
+      if (rowData == rowEnd && endFlagSearch) {
+        rowEndIndex = index;
+        console.log(`Значение ${rowEnd} найдено в строке ${index}.`);
+        endFlagSearch = false;
+      }
+    });
+
+    if (rowIndex !== null) {
+      const startRowIndex = rowIndex + 1;
+      const endRowIndex = rowIndex + 1;
+
+      const newRow1Values = [
+        '',
+        tableData.winner,
+        '',
+        '',
+        tableData.commandData1,
+        tableData.commandData1 * rowEndRatio[0],
+      ];
+
+      sheet.unMergeCells(`A${rowIndex}:A${rowEndIndex - 1}`);
+
+      sheet.spliceRows(rowIndex + 1, 0, newRow1Values);
+
+      for (let i = startRowIndex; i <= endRowIndex; i++) {
+        for (let j = startRowIndex; j <= endRowIndex; j++) {
+          if (i !== j) {
+            sheet.unMergeCells(`A${i}:A${j}`);
+            sheet.unMergeCells(`B${i}:B${j}`);
+            sheet.unMergeCells(`C${i}:C${j}`);
+            sheet.unMergeCells(`D${i}:D${j}`);
+            sheet.unMergeCells(`E${i}:E${j}`);
+            sheet.unMergeCells(`F${i}:F${j}`);
+            sheet.unMergeCells(`G${i}:G${j}`);
+          }
+        }
+      }
+
+      sheet.unMergeCells(`A${rowIndex - 1}:A${rowEndIndex}`);
+      sheet.mergeCells(`A${rowIndex}:A${rowEndIndex}`);
+      sheet.unMergeCells(`B${rowIndex + 1}:D${rowIndex + 1}`);
+      sheet.mergeCells(`B${rowIndex + 1}:D${rowIndex + 1}`);
+
+      for (let i = rowIndex + 1; i <= endRowIndex; i++) {
+        const cellA = sheet.getCell(`A${i}`);
+        const cellB = sheet.getCell(`B${i}`);
+        const cellC = sheet.getCell(`C${i}`);
+        const cellD = sheet.getCell(`D${i}`);
+        const cellE = sheet.getCell(`E${i}`);
+        const cellF = sheet.getCell(`F${i}`);
+        const cellG = sheet.getCell(`G${i}`);
+
+        cellA.style.font = {
+          name: 'Times New Roman',
+          size: 12,
+        };
+        cellA.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+        cellA.alignment = { vertical: 'middle', horizontal: 'center' };
+
+        cellB.style.font = {
+          italic: true,
+          name: 'Times New Roman',
+          size: 12,
+        };
+        cellB.alignment = {
+          vertical: 'top',
+          horizontal: 'left',
+          wrapText: true,
+        };
+        cellB.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+
+        cellC.style.font = {
+          name: 'Times New Roman',
+          size: 12,
+        };
+        cellC.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+        cellC.alignment = {
+          vertical: 'middle',
+          horizontal: 'left',
+          wrapText: true,
+        };
+
+        [cellD, cellE, cellF, cellG].forEach((cell) => {
+          cell.style.font = {
+            name: 'Times New Roman',
+            size: 12,
+          };
+          cell.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+          };
+        });
+        cellG.border = { right: { style: 'thick' } };
+        cellE.alignment = { vertical: 'middle', horizontal: 'center' };
+        cellF.alignment = { vertical: 'middle', horizontal: 'center' };
+      }
+
+      const currentDate = new Date();
+      const dateString = currentDate.toISOString().slice(0, 10);
+      const timeString = currentDate.toTimeString().slice(0, 8).replace(/:/g, '-');
+      const fileName = `table_${dateString}_${timeString}.xlsx`;
+
+      await workbook.xlsx.writeFile(fileName);
+
+      console.log('Данные успешно вставлены после строки с значением 6.4.');
+      res.send('Данные успешно вставлены');
+    } else {
+      console.log('Строка с 6.4 не найдена.');
+    }
+  } catch (error) {
+    console.error('Ошибка при создании Excel файла:', error);
+  }
 });
 
-router.post('/createExcel723', (req, res) => {
+router.post('/createExcel723', async (req, res) => {
   const tableData = req.body;
 
-  const workbook = new exceljs.Workbook();
-  const sheet = workbook.addWorksheet('Sheet 1');
+  try {
+    const workbook = new exceljs.Workbook();
+    const filePath = 'example.xlsx';
 
-  sheet.mergeCells('B1', 'B7');
-  sheet.mergeCells('C1', 'C3');
-  sheet.mergeCells('C4', 'C6');
-  sheet.mergeCells('C7', 'D7');
+    await workbook.xlsx.readFile(filePath);
 
-  sheet.getCell('B1').value = tableData.winner;
+    const sheet = workbook.getWorksheet('Лист1');
 
-  sheet.getCell('C1').value = 'Призовые места по итогам командного первенства в номинациях';
-  sheet.getCell('C4').value = 'Призовые места по итогам личного первенства в номинациях';
-  sheet.getCell('C7').value = 'Отсутствие соревновательной составляющей';
+    if (sheet) {
+      console.log('Страница "Лист1" найдена.');
+    } else {
+      console.log('Страница "Лист1" не найдена.');
+    }
 
-  sheet.getCell('D1').value = '1-х мест';
-  sheet.getCell('D2').value = '2-х мест';
-  sheet.getCell('D3').value = '3-х мест';
-  sheet.getCell('D4').value = '1-х мест';
-  sheet.getCell('D5').value = '2-х мест';
-  sheet.getCell('D6').value = '3-х мест';
-
-  sheet.getCell('E1').value = tableData.commandData1;
-  sheet.getCell('E2').value = tableData.commandData2;
-  sheet.getCell('E3').value = tableData.commandData3;
-  sheet.getCell('E4').value = tableData.personalData1;
-  sheet.getCell('E5').value = tableData.personalData2;
-  sheet.getCell('E6').value = tableData.personalData3;
-  sheet.getCell('E7').value = tableData.lackOfCompetitiveComponentData;
-
-  workbook.xlsx
-    .writeFile('table723.xlsx')
-    .then(() => {
-      console.log('File saved successfully');
-      res.send('File saved successfully');
-    })
-    .catch((error) => {
-      console.error('Error saving file:', error);
-      res.status(500).send('Error saving file');
+    let rowIndex = null;
+    let rowEndIndex = null;
+    let flag = true;
+    sheet.eachRow({ includeEmpty: false }, (row, index) => {
+      const rowData = row.getCell(1).value;
+      if (rowData == '7.2.3' && flag) {
+        rowIndex = index;
+        console.log(`Значение 7.2.3 найдено в строке ${index}.`);
+        flag = false;
+      }
+      if (rowData == '7.2.4') {
+        rowEndIndex = index;
+        console.log(`Значение 7.2.4 найдено в строке ${index}.`);
+      }
     });
+
+    if (rowIndex !== null) {
+      const startRowIndex = rowIndex + 1;
+      const endRowIndex = rowIndex + 7;
+
+      const newRow1Values = [
+        '',
+        tableData.winner,
+        'Призовые места по итогам командного первенства',
+        '1-х мест',
+        tableData.commandData1,
+        tableData.commandData1 * 20,
+      ];
+      const newRow2Values = [
+        '',
+        '',
+        '',
+        '2-х мест',
+        tableData.commandData2,
+        tableData.commandData2 * 15,
+      ];
+      const newRow3Values = [
+        '',
+        '',
+        '',
+        '3-х мест',
+        tableData.commandData3,
+        tableData.commandData3 * 10,
+      ];
+      const newRow4Values = [
+        '',
+        '',
+        'Призовые места по итогам личного первенства',
+        '1-х мест',
+        tableData.personalData1,
+        tableData.personalData1 * 20,
+      ];
+      const newRow5Values = [
+        '',
+        '',
+        '',
+        '2-х мест',
+        tableData.personalData2,
+        tableData.personalData2 * 15,
+      ];
+      const newRow6Values = [
+        '',
+        '',
+        '',
+        '3-х мест',
+        tableData.personalData3,
+        tableData.personalData3 * 10,
+      ];
+      const newRow7Values = [
+        '',
+        '',
+        'Отсутствие соревновательной составляющей',
+        '',
+        tableData.lackOfCompetitiveComponentData,
+        tableData.lackOfCompetitiveComponentData * 5,
+      ];
+      sheet.unMergeCells(`A${rowIndex}:A${rowEndIndex - 1}`);
+      sheet.spliceRows(rowIndex + 1, 0, newRow1Values);
+      sheet.spliceRows(rowIndex + 2, 0, newRow2Values);
+      sheet.spliceRows(rowIndex + 3, 0, newRow3Values);
+      sheet.spliceRows(rowIndex + 4, 0, newRow4Values);
+      sheet.spliceRows(rowIndex + 5, 0, newRow5Values);
+      sheet.spliceRows(rowIndex + 6, 0, newRow6Values);
+      sheet.spliceRows(rowIndex + 7, 0, newRow7Values);
+
+      for (let i = startRowIndex; i <= endRowIndex; i++) {
+        for (let j = startRowIndex; j <= endRowIndex; j++) {
+          if (i !== j) {
+            sheet.unMergeCells(`A${i}:A${j}`);
+            sheet.unMergeCells(`B${i}:B${j}`);
+            sheet.unMergeCells(`C${i}:C${j}`);
+            sheet.unMergeCells(`D${i}:D${j}`);
+            sheet.unMergeCells(`E${i}:E${j}`);
+            sheet.unMergeCells(`F${i}:F${j}`);
+            sheet.unMergeCells(`G${i}:G${j}`);
+          }
+        }
+      }
+      sheet.unMergeCells(`A${rowIndex}:A${rowEndIndex + 6}`);
+      sheet.mergeCells(`A${rowIndex}:A${rowEndIndex + 6}`);
+      sheet.mergeCells(`B${rowIndex + 1}:B${rowIndex + 7}`);
+      sheet.mergeCells(`C${rowIndex + 1}:C${rowIndex + 3}`);
+      sheet.mergeCells(`C${rowIndex + 4}:C${rowIndex + 6}`);
+      sheet.mergeCells(`C${rowIndex + 7}:D${rowIndex + 7}`);
+
+      for (let i = rowIndex + 1; i <= endRowIndex; i++) {
+        const cellA = sheet.getCell(`A${i}`);
+        const cellB = sheet.getCell(`B${i}`);
+        const cellC = sheet.getCell(`C${i}`);
+        const cellD = sheet.getCell(`D${i}`);
+        const cellE = sheet.getCell(`E${i}`);
+        const cellF = sheet.getCell(`F${i}`);
+        const cellG = sheet.getCell(`G${i}`);
+
+        cellA.style.font = {
+          name: 'Times New Roman',
+          size: 12,
+        };
+        cellA.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+        cellA.alignment = { vertical: 'middle', horizontal: 'center' };
+
+        cellB.style.font = {
+          italic: true,
+          name: 'Times New Roman',
+          size: 12,
+        };
+        cellB.alignment = {
+          vertical: 'top',
+          horizontal: 'left',
+          wrapText: true,
+        };
+        cellB.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+
+        cellC.style.font = {
+          name: 'Times New Roman',
+          size: 12,
+        };
+        cellC.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+        cellC.alignment = {
+          vertical: 'middle',
+          horizontal: 'left',
+          wrapText: true,
+        };
+
+        [cellD, cellE, cellF, cellG].forEach((cell) => {
+          cell.style.font = {
+            name: 'Times New Roman',
+            size: 12,
+          };
+          cell.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+          };
+        });
+        cellG.border = { right: { style: 'thick' }, bottom: { style: 'thin' } };
+        cellA.border = { left: { style: 'thick' } };
+        cellE.alignment = { vertical: 'middle', horizontal: 'center' };
+        cellF.alignment = { vertical: 'middle', horizontal: 'center' };
+      }
+
+      const currentDate = new Date();
+      const dateString = currentDate.toISOString().slice(0, 10);
+      const timeString = currentDate.toTimeString().slice(0, 8).replace(/:/g, '-');
+      const fileName = `table_${dateString}_${timeString}.xlsx`;
+
+      await workbook.xlsx.writeFile(fileName);
+
+      console.log('Данные успешно вставлены после строки с значением 7.2.3');
+      res.send('Данные успешно вставлены');
+    } else {
+      console.log('Строка с 7.2.3 не найдена.');
+    }
+  } catch (error) {
+    console.error('Ошибка при создании Excel файла:', error);
+  }
 });
 
 module.exports = router;
