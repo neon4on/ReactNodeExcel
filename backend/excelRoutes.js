@@ -1,14 +1,37 @@
 const express = require('express');
 const router = express.Router();
+const fs = require('fs');
+const path = require('path');
 const exceljs = require('exceljs');
-const xlsxPopulate = require('xlsx-populate');
 
 router.post('/createExcel51', async function (req, res) {
   const tableData = req.body;
 
   try {
     const workbook = new exceljs.Workbook();
-    const filePath = 'example.xlsx';
+    const newFolderPath = 'new';
+    const oldFolderPath = 'old';
+
+    if (!fs.existsSync(newFolderPath)) {
+      fs.mkdirSync(newFolderPath);
+    }
+    if (!fs.existsSync(oldFolderPath)) {
+      fs.mkdirSync(oldFolderPath);
+    }
+
+    const files = fs.readdirSync(newFolderPath);
+
+    let filePath = null;
+    for (const file of files) {
+      if (file.startsWith('table')) {
+        filePath = path.join(newFolderPath, file);
+        break;
+      }
+    }
+
+    if (!filePath) {
+      throw new Error('Файл с префиксом "table" не найден в папке "new"');
+    }
 
     await workbook.xlsx.readFile(filePath);
 
@@ -273,7 +296,11 @@ router.post('/createExcel51', async function (req, res) {
       const timeString = currentDate.toTimeString().slice(0, 8).replace(/:/g, '-');
       const fileName = `table_${dateString}_${timeString}.xlsx`;
 
-      await workbook.xlsx.writeFile(fileName);
+      const newFilePath = path.join(newFolderPath, fileName);
+
+      await workbook.xlsx.writeFile(newFilePath);
+
+      fs.renameSync(filePath, path.join(oldFolderPath, path.basename(filePath)));
 
       console.log('Данные успешно вставлены после строки с значением 5.1.');
       res.send('Данные успешно вставлены');
@@ -297,7 +324,29 @@ router.post('/createExcel54', async (req, res) => {
   };
   try {
     const workbook = new exceljs.Workbook();
-    const filePath = 'example.xlsx';
+    const newFolderPath = 'new';
+    const oldFolderPath = 'old';
+
+    if (!fs.existsSync(newFolderPath)) {
+      fs.mkdirSync(newFolderPath);
+    }
+    if (!fs.existsSync(oldFolderPath)) {
+      fs.mkdirSync(oldFolderPath);
+    }
+
+    const files = fs.readdirSync(newFolderPath);
+
+    let filePath = null;
+    for (const file of files) {
+      if (file.startsWith('table')) {
+        filePath = path.join(newFolderPath, file);
+        break;
+      }
+    }
+
+    if (!filePath) {
+      throw new Error('Файл с префиксом "table" не найден в папке "new"');
+    }
 
     await workbook.xlsx.readFile(filePath);
 
@@ -475,7 +524,11 @@ router.post('/createExcel54', async (req, res) => {
       const timeString = currentDate.toTimeString().slice(0, 8).replace(/:/g, '-');
       const fileName = `table_${dateString}_${timeString}.xlsx`;
 
-      await workbook.xlsx.writeFile(fileName);
+      const newFilePath = path.join(newFolderPath, fileName);
+
+      await workbook.xlsx.writeFile(newFilePath);
+
+      fs.renameSync(filePath, path.join(oldFolderPath, path.basename(filePath)));
 
       console.log('Данные успешно вставлены после строки с значением 5.4.');
       res.send('Данные успешно вставлены');
@@ -497,7 +550,29 @@ router.post('/createExcel64', async (req, res) => {
   };
   try {
     const workbook = new exceljs.Workbook();
-    const filePath = 'example.xlsx';
+    const newFolderPath = 'new';
+    const oldFolderPath = 'old';
+
+    if (!fs.existsSync(newFolderPath)) {
+      fs.mkdirSync(newFolderPath);
+    }
+    if (!fs.existsSync(oldFolderPath)) {
+      fs.mkdirSync(oldFolderPath);
+    }
+
+    const files = fs.readdirSync(newFolderPath);
+
+    let filePath = null;
+    for (const file of files) {
+      if (file.startsWith('table')) {
+        filePath = path.join(newFolderPath, file);
+        break;
+      }
+    }
+
+    if (!filePath) {
+      throw new Error('Файл с префиксом "table" не найден в папке "new"');
+    }
 
     await workbook.xlsx.readFile(filePath);
 
@@ -653,7 +728,11 @@ router.post('/createExcel64', async (req, res) => {
       const timeString = currentDate.toTimeString().slice(0, 8).replace(/:/g, '-');
       const fileName = `table_${dateString}_${timeString}.xlsx`;
 
-      await workbook.xlsx.writeFile(fileName);
+      const newFilePath = path.join(newFolderPath, fileName);
+
+      await workbook.xlsx.writeFile(newFilePath);
+
+      fs.renameSync(filePath, path.join(oldFolderPath, path.basename(filePath)));
 
       console.log('Данные успешно вставлены после строки с значением 6.4.');
       res.send('Данные успешно вставлены');
@@ -670,7 +749,29 @@ router.post('/createExcel723', async (req, res) => {
 
   try {
     const workbook = new exceljs.Workbook();
-    const filePath = 'example.xlsx';
+    const newFolderPath = 'new';
+    const oldFolderPath = 'old';
+
+    if (!fs.existsSync(newFolderPath)) {
+      fs.mkdirSync(newFolderPath);
+    }
+    if (!fs.existsSync(oldFolderPath)) {
+      fs.mkdirSync(oldFolderPath);
+    }
+
+    const files = fs.readdirSync(newFolderPath);
+
+    let filePath = null;
+    for (const file of files) {
+      if (file.startsWith('table')) {
+        filePath = path.join(newFolderPath, file);
+        break;
+      }
+    }
+
+    if (!filePath) {
+      throw new Error('Файл с префиксом "table" не найден в папке "new"');
+    }
 
     await workbook.xlsx.readFile(filePath);
 
@@ -864,7 +965,11 @@ router.post('/createExcel723', async (req, res) => {
       const timeString = currentDate.toTimeString().slice(0, 8).replace(/:/g, '-');
       const fileName = `table_${dateString}_${timeString}.xlsx`;
 
-      await workbook.xlsx.writeFile(fileName);
+      const newFilePath = path.join(newFolderPath, fileName);
+
+      await workbook.xlsx.writeFile(newFilePath);
+
+      fs.renameSync(filePath, path.join(oldFolderPath, path.basename(filePath)));
 
       console.log('Данные успешно вставлены после строки с значением 7.2.3');
       res.send('Данные успешно вставлены');

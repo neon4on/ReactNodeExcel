@@ -1,0 +1,86 @@
+.h2Home {
+  display: flex;
+  justify-content: center;
+}
+
+.ulHome {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  flex-direction: column;
+  align-content: center;
+}
+
+select {
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  background-color: rgb(38, 166, 154);
+  color: #fff;
+}
+
+.container {
+  width: 100%;
+  font-size: 12pt;
+}
+
+form {
+  width: 100%;
+  margin: 0 auto;
+}
+
+td,
+th {
+  padding: 0px 0px;
+  display: table-cell;
+  text-align: left;
+  vertical-align: middle;
+  border-radius: 2px;
+  font-weight: normal;
+  border: 1px solid #595959;
+  height: 5px;
+  max-height: 100px; /* Установите желаемую максимальную высоту */
+  overflow: auto; /* Добавляет прокрутку, если содержимое ячейки превышает максимальную высоту */
+}
+
+.wrapper-button {
+  display: flex;
+  justify-content: center;
+}
+
+.form-container {
+  max-width: 300px;
+}
+
+.compact-form {
+  margin-bottom: 20px;
+}
+
+.compact-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.compact-table td {
+  padding: 5px;
+  border: 1px solid #ccc;
+}
+
+.compact-button {
+  width: 100%;
+}
+
+textarea.materialize-textarea,
+#textarea1.materialize-textarea {
+  resize: vertical;
+  overflow-y: auto;
+  min-height: 1rem;
+  max-height: 5rem;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+input.materialize-textarea,
+input.input-field {
+  height: auto !important;
+}
