@@ -11,6 +11,9 @@ const Home = () => {
           <Link to="/51">Форма 5.1</Link>
         </li>
         <li>
+          <Link to="/52">Форма 5.2</Link>
+        </li>
+        <li>
           <Link to="/54">Форма 5.4</Link>
         </li>
         <li>

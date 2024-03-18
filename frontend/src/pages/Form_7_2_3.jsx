@@ -1,17 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useCookies } from 'react-cookie';
+
+const now = new Date();
+const expires = new Date(now.getFullYear() + 10, now.getMonth(), now.getDate());
 
 const Form723 = () => {
-  const [tableData, setTableData] = useState({
-    winner: '',
-    commandData1: '',
-    commandData2: '',
-    commandData3: '',
-    personalData1: '',
-    personalData2: '',
-    personalData3: '',
-    lackOfCompetitiveComponentData: '',
-  });
+  const [cookies, setCookie] = useCookies(['tableData']);
+  const [tableData, setTableData] = useState(
+    () =>
+      cookies.tableData || {
+        winner: '',
+        commandData1: '',
+        commandData2: '',
+        commandData3: '',
+        personalData1: '',
+        personalData2: '',
+        personalData3: '',
+        lackOfCompetitiveComponentData: '',
+      },
+  );
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -19,19 +27,23 @@ const Form723 = () => {
       ...prevState,
       [name]: value,
     }));
+    setCookie('tableData', { ...tableData, [name]: value }, { path: '/51', expires });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       console.log('Отправляемые данные:', tableData);
-
       const response = await axios.post('http://localhost:4000/api/createExcel723', tableData);
       console.log('Ответ сервера:', response.data);
     } catch (error) {
       console.error('Ошибка при отправке данных:', error);
     }
   };
+
+  useEffect(() => {
+    setTableData(cookies.tableData || {});
+  }, [cookies.tableData]);
 
   return (
     <div className="container">

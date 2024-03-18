@@ -1,14 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useCookies } from 'react-cookie';
+
+const now = new Date();
+const expires = new Date(now.getFullYear() + 10, now.getMonth(), now.getDate());
 
 const Form54 = () => {
-  const [tableData, setTableData] = useState({
-    winner: '',
-    commandData1: '',
-    commandData2: '',
-    commandData3: '',
-    select: '',
-  });
+  const [cookies, setCookie] = useCookies(['tableData']);
+  const [tableData, setTableData] = useState(
+    () =>
+      cookies.tableData || {
+        winner: '',
+        commandData1: '',
+        commandData2: '',
+        commandData3: '',
+        select: '',
+      },
+  );
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -16,7 +24,12 @@ const Form54 = () => {
       ...prevState,
       [name]: value,
     }));
+    setCookie('tableData', { ...tableData, [name]: value }, { path: '/51', expires });
   };
+
+  useEffect(() => {
+    setTableData(cookies.tableData || {});
+  }, [cookies.tableData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

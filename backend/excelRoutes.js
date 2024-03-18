@@ -1,16 +1,35 @@
+// Модули
 const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
 const exceljs = require('exceljs');
+const axios = require('axios');
 
+// Константы
+const NUM_PARAM = '1986228881';
+const newFolderPath = 'new';
+const oldFolderPath = 'old';
+
+// Функция для проверки открытости файла
+const isFileLocked = (filePath) => {
+  try {
+    fs.renameSync(filePath, filePath);
+    return false;
+  } catch (error) {
+    if (error.code === 'EBUSY') {
+      return true;
+    }
+    throw error;
+  }
+};
+
+// Форма под пунктом 5.1
 router.post('/createExcel51', async function (req, res) {
   const tableData = req.body;
 
   try {
     const workbook = new exceljs.Workbook();
-    const newFolderPath = 'new';
-    const oldFolderPath = 'old';
 
     if (!fs.existsSync(newFolderPath)) {
       fs.mkdirSync(newFolderPath);
@@ -31,6 +50,14 @@ router.post('/createExcel51', async function (req, res) {
 
     if (!filePath) {
       throw new Error('Файл с префиксом "table" не найден в папке "new"');
+    }
+
+    if (isFileLocked(filePath)) {
+      console.log('Файл заблокирован другим процессом.');
+      await axios.get(
+        `http://home.teyhd.ru:3334/?num=${NUM_PARAM}&msg=файл%20открыт.%20данные%20не%20добавлены`,
+      );
+      return;
     }
 
     await workbook.xlsx.readFile(filePath);
@@ -75,110 +102,112 @@ router.post('/createExcel51', async function (req, res) {
         }
         j++;
       }
-
+      console.log(tableData);
       const newRow1Values = [
         '5.1.1',
         tableData.winner,
         'Призовые места по итогам командного первенства в номинациях',
         '1-х мест',
-        tableData.commandData1,
-        tableData.commandData1 * 30,
+        tableData.commandData1 ? tableData.commandData1 : '',
+        tableData.commandData1 ? tableData.commandData1 * 30 : '',
       ];
       const newRow2Values = [
         '',
         '',
         '',
         '2-х мест',
-        tableData.commandData2,
-        tableData.commandData2 * 25,
+        tableData.commandData2 ? tableData.commandData2 : '',
+        tableData.commandData2 ? tableData.commandData2 * 25 : '',
       ];
       const newRow3Values = [
         '',
         '',
         '',
         '3-х мест',
-        tableData.commandData3,
-        tableData.commandData3 * 20,
+        tableData.commandData3 ? tableData.commandData3 : '',
+        tableData.commandData3 ? tableData.commandData3 * 20 : '',
       ];
       const newRow4Values = [
         '',
         '',
         'Призовые места по итогам командного первенства в номинациях',
         '1-х мест',
-        tableData.commandData11,
-        tableData.commandData11 * 10,
+        tableData.commandData11 ? tableData.commandData11 : '',
+        tableData.commandData11 ? tableData.commandData11 * 10 : '',
       ];
       const newRow5Values = [
         '',
         '',
         '',
         '2-х мест',
-        tableData.commandData21,
-        tableData.commandData21 * 8,
+        tableData.commandData21 ? tableData.commandData21 : '',
+        tableData.commandData21 ? tableData.commandData21 * 8 : '',
       ];
       const newRow6Values = [
         '',
         '',
         '',
         '3-х мест',
-        tableData.commandData31,
-        tableData.commandData31 * 6,
+        tableData.commandData31 ? tableData.commandData31 : '',
+        tableData.commandData31 ? tableData.commandData31 * 6 : '',
       ];
       const newRow7Values = [
         '',
         '',
         'Призовые места по итогам личного первенства в номинациях',
         '1-х мест',
-        tableData.personalData1,
-        tableData.personalData1 * 5,
+        tableData.personalData1 ? tableData.personalData1 : '',
+        tableData.personalData1 ? tableData.personalData1 * 5 : '',
       ];
       const newRow8Values = [
         '',
         '',
         '',
         '2-х мест',
-        tableData.personalData2,
-        tableData.personalData2 * 4,
+        tableData.personalData2 ? tableData.personalData2 : '',
+        tableData.personalData2 ? tableData.personalData2 * 4 : '',
       ];
       const newRow9Values = [
         '',
         '',
         '',
         '3-х мест',
-        tableData.personalData3,
-        tableData.personalData3 * 3,
+        tableData.personalData3 ? tableData.personalData3 : '',
+        tableData.personalData3 ? tableData.personalData3 * 3 : '',
       ];
       const newRow10Values = [
         '',
         '',
         'Гран При',
         '',
-        tableData.grandPrizeData,
-        tableData.grandPrizeData * 15,
+        tableData.grandPrizeData ? tableData.grandPrizeData : '',
+        tableData.grandPrizeData ? tableData.grandPrizeData * 15 : '',
       ];
       const newRow11Values = [
         '',
         '',
         'Приз за отдельные достижения',
         '',
-        tableData.individualAchievementData,
-        tableData.individualAchievementData * 5,
+        tableData.individualAchievementData ? tableData.individualAchievementData : '',
+        tableData.individualAchievementData ? tableData.individualAchievementData * 5 : '',
       ];
       const newRow12Values = [
         '',
         '',
         'Побед в специальных номинациях',
         '',
-        tableData.specialAwardsData,
-        tableData.specialAwardsData * 2,
+        tableData.specialAwardsData ? tableData.specialAwardsData : '',
+        tableData.specialAwardsData ? tableData.specialAwardsData * 2 : '',
       ];
       const newRow13Values = [
         '',
         '',
         'Отсутствие соревновательной составляющей',
         '',
-        tableData.lackOfCompetitiveComponentData,
-        tableData.lackOfCompetitiveComponentData * 15,
+        tableData.lackOfCompetitiveComponentData ? tableData.lackOfCompetitiveComponentData : '',
+        tableData.lackOfCompetitiveComponentData
+          ? tableData.lackOfCompetitiveComponentData * 15
+          : '',
       ];
 
       sheet.spliceRows(rowIndex + 1, 0, newRow1Values);
@@ -301,31 +330,26 @@ router.post('/createExcel51', async function (req, res) {
       await workbook.xlsx.writeFile(newFilePath);
 
       fs.renameSync(filePath, path.join(oldFolderPath, path.basename(filePath)));
-
+      await axios.get(`http://home.teyhd.ru:3334/?num=${NUM_PARAM}&msg=данные%20были%20добавлены`);
       console.log('Данные успешно вставлены после строки с значением 5.1.');
       res.send('Данные успешно вставлены');
     } else {
       console.log('Строка с 5.1 не найдена.');
     }
   } catch (error) {
+    await axios.get(
+      `http://home.teyhd.ru:3334/?num=${NUM_PARAM}&msg=ошибка%20при%20открытии%20файла`,
+    );
     console.error('Ошибка при создании Excel файла:', error);
   }
 });
 
-router.post('/createExcel54', async (req, res) => {
+/// Форма под пунктом 5.2
+router.post('/createExcel52', async function (req, res) {
   const tableData = req.body;
-  const arr = ['5.4.1', '5.4.2', '5.4.3', '5.4.4', 5.5];
-  const ratio = {
-    '5.4.1': [],
-    '5.4.2': [5, 3, 2, 0.5],
-    '5.4.3': [10, 6, 5, 0.5],
-    '5.4.4': [20, 15, 12, 0.5],
-    5.5: [30, 20, 18, 0.5],
-  };
+
   try {
     const workbook = new exceljs.Workbook();
-    const newFolderPath = 'new';
-    const oldFolderPath = 'old';
 
     if (!fs.existsSync(newFolderPath)) {
       fs.mkdirSync(newFolderPath);
@@ -346,6 +370,346 @@ router.post('/createExcel54', async (req, res) => {
 
     if (!filePath) {
       throw new Error('Файл с префиксом "table" не найден в папке "new"');
+    }
+
+    if (isFileLocked(filePath)) {
+      console.log('Файл заблокирован другим процессом.');
+      await axios.get(
+        `http://home.teyhd.ru:3334/?num=${NUM_PARAM}&msg=файл%20открыт.%20данные%20не%20добавлены`,
+      );
+      return;
+    }
+
+    await workbook.xlsx.readFile(filePath);
+
+    const sheet = workbook.getWorksheet('Лист1');
+
+    if (sheet) {
+      console.log('Страница "Лист1" найдена.');
+    } else {
+      console.log('Страница "Лист1" не найдена.');
+    }
+
+    let rowIndex = null;
+    let rowEndIndex = null;
+    let flagSearch = true;
+
+    sheet.eachRow({ includeEmpty: false }, (row, index) => {
+      const rowData = row.getCell(1).value;
+      if (rowData && (rowData == 5.2 || rowData == '5,2' || rowData == '5.2')) {
+        rowIndex = index;
+        console.log(`Значение 5.2 найдено в строке ${index}.`);
+      }
+      if ((rowData == 5.3 || rowData == '5,3' || rowData == '5.3') && flagSearch) {
+        rowEndIndex = index;
+        console.log(`Значение 5.3 найдено в строке ${index}.`);
+        flagSearch = false;
+      }
+    });
+
+    if (rowIndex !== null) {
+      console.log(`Строка с 5.2 найдена: ${rowIndex}`);
+
+      const startRowIndex = rowIndex + 1;
+      const endRowIndex = rowIndex + 13;
+
+      let j = 0;
+      for (let i = startRowIndex + 1; i < rowEndIndex; i++) {
+        if (j % 13 == 0) {
+          const cellValue = sheet.getCell(`A${i}`).value;
+          if (cellValue !== null) {
+            const parts = cellValue.split('.');
+            const number = parseInt(parts[2]);
+            parts[2] = (number + 1).toString();
+            sheet.getCell(`A${i}`).value = parts.join('.');
+          }
+        }
+        j++;
+      }
+
+      const newRow1Values = [
+        '5.2.1',
+        tableData.winner,
+        'Призовые места по итогам командного первенства в номинациях',
+        '1-х мест',
+        tableData.commandData1 ? tableData.commandData1 : '',
+        tableData.commandData1 ? tableData.commandData1 * 30 : '',
+      ];
+      const newRow2Values = [
+        '',
+        '',
+        '',
+        '2-х мест',
+        tableData.commandData2 ? tableData.commandData2 : '',
+        tableData.commandData2 ? tableData.commandData2 * 25 : '',
+      ];
+      const newRow3Values = [
+        '',
+        '',
+        '',
+        '3-х мест',
+        tableData.commandData3 ? tableData.commandData3 : '',
+        tableData.commandData3 ? tableData.commandData3 * 20 : '',
+      ];
+      const newRow4Values = [
+        '',
+        '',
+        'Призовые места по итогам командного первенства в номинациях',
+        '1-х мест',
+        tableData.commandData11 ? tableData.commandData11 : '',
+        tableData.commandData11 ? tableData.commandData11 * 10 : '',
+      ];
+      const newRow5Values = [
+        '',
+        '',
+        '',
+        '2-х мест',
+        tableData.commandData21 ? tableData.commandData21 : '',
+        tableData.commandData21 ? tableData.commandData21 * 8 : '',
+      ];
+      const newRow6Values = [
+        '',
+        '',
+        '',
+        '3-х мест',
+        tableData.commandData31 ? tableData.commandData31 : '',
+        tableData.commandData31 ? tableData.commandData31 * 6 : '',
+      ];
+      const newRow7Values = [
+        '',
+        '',
+        'Призовые места по итогам личного первенства в номинациях',
+        '1-х мест',
+        tableData.personalData1 ? tableData.personalData1 : '',
+        tableData.personalData1 ? tableData.personalData1 * 5 : '',
+      ];
+      const newRow8Values = [
+        '',
+        '',
+        '',
+        '2-х мест',
+        tableData.personalData2 ? tableData.personalData2 : '',
+        tableData.personalData2 ? tableData.personalData2 * 4 : '',
+      ];
+      const newRow9Values = [
+        '',
+        '',
+        '',
+        '3-х мест',
+        tableData.personalData3 ? tableData.personalData3 : '',
+        tableData.personalData3 ? tableData.personalData3 * 3 : '',
+      ];
+      const newRow10Values = [
+        '',
+        '',
+        'Гран При',
+        '',
+        tableData.grandPrizeData ? tableData.grandPrizeData : '',
+        tableData.grandPrizeData ? tableData.grandPrizeData * 15 : '',
+      ];
+      const newRow11Values = [
+        '',
+        '',
+        'Приз за отдельные достижения',
+        '',
+        tableData.individualAchievementData ? tableData.individualAchievementData : '',
+        tableData.individualAchievementData ? tableData.individualAchievementData * 5 : '',
+      ];
+      const newRow12Values = [
+        '',
+        '',
+        'Побед в специальных номинациях',
+        '',
+        tableData.specialAwardsData ? tableData.specialAwardsData : '',
+        tableData.specialAwardsData ? tableData.specialAwardsData * 2 : '',
+      ];
+      const newRow13Values = [
+        '',
+        '',
+        'Отсутствие соревновательной составляющей',
+        '',
+        tableData.lackOfCompetitiveComponentData ? tableData.lackOfCompetitiveComponentData : '',
+        tableData.lackOfCompetitiveComponentData
+          ? tableData.lackOfCompetitiveComponentData * 15
+          : '',
+      ];
+
+      sheet.spliceRows(rowIndex + 1, 0, newRow1Values);
+      sheet.spliceRows(rowIndex + 2, 0, newRow2Values);
+      sheet.spliceRows(rowIndex + 3, 0, newRow3Values);
+      sheet.spliceRows(rowIndex + 4, 0, newRow4Values);
+      sheet.spliceRows(rowIndex + 5, 0, newRow5Values);
+      sheet.spliceRows(rowIndex + 6, 0, newRow6Values);
+      sheet.spliceRows(rowIndex + 7, 0, newRow7Values);
+      sheet.spliceRows(rowIndex + 8, 0, newRow8Values);
+      sheet.spliceRows(rowIndex + 9, 0, newRow9Values);
+      sheet.spliceRows(rowIndex + 10, 0, newRow10Values);
+      sheet.spliceRows(rowIndex + 11, 0, newRow11Values);
+      sheet.spliceRows(rowIndex + 12, 0, newRow12Values);
+      sheet.spliceRows(rowIndex + 13, 0, newRow13Values);
+
+      // Сначала снимаем объединение ячеек внутри внешнего цикла
+      for (let i = startRowIndex; i <= endRowIndex; i++) {
+        for (let j = startRowIndex; j <= endRowIndex; j++) {
+          if (i !== j) {
+            sheet.unMergeCells(`A${i}:A${j}`);
+            sheet.unMergeCells(`B${i}:B${j}`);
+            sheet.unMergeCells(`C${i}:C${j}`);
+            sheet.unMergeCells(`D${i}:D${j}`);
+            sheet.unMergeCells(`E${i}:E${j}`);
+            sheet.unMergeCells(`F${i}:F${j}`);
+            sheet.unMergeCells(`G${i}:G${j}`);
+          }
+        }
+      }
+
+      sheet.mergeCells(`A${startRowIndex}:A${endRowIndex}`);
+      sheet.mergeCells(`B${startRowIndex}:B${endRowIndex}`);
+      sheet.mergeCells(`C${startRowIndex}:C${startRowIndex + 2}`);
+      sheet.mergeCells(`C${startRowIndex + 3}:C${startRowIndex + 5}`);
+      sheet.mergeCells(`C${startRowIndex + 6}:C${startRowIndex + 8}`);
+      sheet.mergeCells(`C${startRowIndex + 9}:D${startRowIndex + 9}`);
+      sheet.mergeCells(`C${startRowIndex + 10}:D${startRowIndex + 10}`);
+      sheet.mergeCells(`C${startRowIndex + 11}:D${startRowIndex + 11}`);
+      sheet.mergeCells(`C${startRowIndex + 12}:D${startRowIndex + 12}`);
+
+      for (let i = rowIndex + 1; i <= endRowIndex; i++) {
+        const cellA = sheet.getCell(`A${i}`);
+        const cellB = sheet.getCell(`B${i}`);
+        const cellC = sheet.getCell(`C${i}`);
+        const cellD = sheet.getCell(`D${i}`);
+        const cellE = sheet.getCell(`E${i}`);
+        const cellF = sheet.getCell(`F${i}`);
+        const cellG = sheet.getCell(`G${i}`);
+
+        cellA.style.font = {
+          name: 'Times New Roman',
+          size: 12,
+        };
+        cellA.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+        cellA.alignment = { vertical: 'middle', horizontal: 'center' };
+
+        cellB.style.font = {
+          italic: true,
+          name: 'Times New Roman',
+          size: 12,
+        };
+        cellB.alignment = {
+          vertical: 'top',
+          horizontal: 'left',
+          wrapText: true,
+        };
+        cellB.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+
+        cellC.style.font = {
+          name: 'Times New Roman',
+          size: 12,
+        };
+        cellC.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+        cellC.alignment = {
+          vertical: 'middle',
+          horizontal: 'left',
+          wrapText: true,
+        };
+
+        [cellA, cellD, cellE, cellF, cellG].forEach((cell) => {
+          cell.style.font = {
+            name: 'Times New Roman',
+            size: 12,
+          };
+          cell.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+          };
+        });
+        cellG.border = { right: { style: 'thick' }, bottom: { style: 'thin' } };
+        cellA.border = { left: { style: 'thick' } };
+        cellE.alignment = { vertical: 'middle', horizontal: 'center' };
+        cellF.alignment = { vertical: 'middle', horizontal: 'center' };
+      }
+
+      const currentDate = new Date();
+      const dateString = currentDate.toISOString().slice(0, 10);
+      const timeString = currentDate.toTimeString().slice(0, 8).replace(/:/g, '-');
+      const fileName = `table_${dateString}_${timeString}.xlsx`;
+
+      const newFilePath = path.join(newFolderPath, fileName);
+
+      await workbook.xlsx.writeFile(newFilePath);
+
+      fs.renameSync(filePath, path.join(oldFolderPath, path.basename(filePath)));
+      await axios.get(`http://home.teyhd.ru:3334/?num=${NUM_PARAM}&msg=данные%20были%20добавлены`);
+      console.log('Данные успешно вставлены после строки с значением 5.2.');
+      res.send('Данные успешно вставлены');
+    } else {
+      console.log('Строка с 5.2 не найдена.');
+    }
+  } catch (error) {
+    await axios.get(
+      `http://home.teyhd.ru:3334/?num=${NUM_PARAM}&msg=ошибка%20при%20открытии%20файла`,
+    );
+    console.error('Ошибка при создании Excel файла:', error);
+  }
+});
+
+// Форма под пунктом 5.4
+router.post('/createExcel54', async (req, res) => {
+  const tableData = req.body;
+  const arr = ['5.4.1', '5.4.2', '5.4.3', '5.4.4', 5.5];
+  const ratio = {
+    '5.4.1': [],
+    '5.4.2': [5, 3, 2, 0.5],
+    '5.4.3': [10, 6, 5, 0.5],
+    '5.4.4': [20, 15, 12, 0.5],
+    5.5: [30, 20, 18, 0.5],
+  };
+  try {
+    const workbook = new exceljs.Workbook();
+
+    if (!fs.existsSync(newFolderPath)) {
+      fs.mkdirSync(newFolderPath);
+    }
+    if (!fs.existsSync(oldFolderPath)) {
+      fs.mkdirSync(oldFolderPath);
+    }
+
+    const files = fs.readdirSync(newFolderPath);
+
+    let filePath = null;
+    for (const file of files) {
+      if (file.startsWith('table')) {
+        filePath = path.join(newFolderPath, file);
+        break;
+      }
+    }
+
+    if (!filePath) {
+      throw new Error('Файл с префиксом "table" не найден в папке "new"');
+    }
+
+    if (isFileLocked(filePath)) {
+      console.log('Файл заблокирован другим процессом.');
+      await axios.get(
+        `http://home.teyhd.ru:3334/?num=${NUM_PARAM}&msg=файл%20открыт.%20данные%20не%20добавлены`,
+      );
+      return;
     }
 
     await workbook.xlsx.readFile(filePath);
@@ -401,7 +765,7 @@ router.post('/createExcel54', async (req, res) => {
         tableData.winner,
         'Побед',
         '1-х мест',
-        tableData.commandData1,
+        tableData.commandData1 ? tableData.commandData1 * 30 : '',
         tableData.commandData1 * rowEndRatio[0],
       ];
       const newRow2Values = [
@@ -531,15 +895,20 @@ router.post('/createExcel54', async (req, res) => {
       fs.renameSync(filePath, path.join(oldFolderPath, path.basename(filePath)));
 
       console.log('Данные успешно вставлены после строки с значением 5.4.');
+      await axios.get(`http://home.teyhd.ru:3334/?num=${NUM_PARAM}&msg=данные%20были%20добавлены`);
       res.send('Данные успешно вставлены');
     } else {
       console.log('Строка с 5.4 не найдена.');
     }
   } catch (error) {
+    await axios.get(
+      `http://home.teyhd.ru:3334/?num=${NUM_PARAM}&msg=ошибка%20при%20открытии%20файла`,
+    );
     console.error('Ошибка при создании Excel файла:', error);
   }
 });
 
+// Форма под пунктом 6.4
 router.post('/createExcel64', async (req, res) => {
   const tableData = req.body;
   const arr = ['6.4.2', '6.4.3', '6.5'];
@@ -550,8 +919,6 @@ router.post('/createExcel64', async (req, res) => {
   };
   try {
     const workbook = new exceljs.Workbook();
-    const newFolderPath = 'new';
-    const oldFolderPath = 'old';
 
     if (!fs.existsSync(newFolderPath)) {
       fs.mkdirSync(newFolderPath);
@@ -572,6 +939,14 @@ router.post('/createExcel64', async (req, res) => {
 
     if (!filePath) {
       throw new Error('Файл с префиксом "table" не найден в папке "new"');
+    }
+
+    if (isFileLocked(filePath)) {
+      console.log('Файл заблокирован другим процессом.');
+      await axios.get(
+        `http://home.teyhd.ru:3334/?num=${NUM_PARAM}&msg=файл%20открыт.%20данные%20не%20добавлены`,
+      );
+      return;
     }
 
     await workbook.xlsx.readFile(filePath);
@@ -625,7 +1000,7 @@ router.post('/createExcel64', async (req, res) => {
         tableData.winner,
         '',
         '',
-        tableData.commandData1,
+        tableData.commandData1 ? tableData.commandData1 * 30 : '',
         tableData.commandData1 * rowEndRatio[0],
       ];
 
@@ -735,22 +1110,25 @@ router.post('/createExcel64', async (req, res) => {
       fs.renameSync(filePath, path.join(oldFolderPath, path.basename(filePath)));
 
       console.log('Данные успешно вставлены после строки с значением 6.4.');
+      await axios.get(`http://home.teyhd.ru:3334/?num=${NUM_PARAM}&msg=данные%20были%20добавлены`);
       res.send('Данные успешно вставлены');
     } else {
       console.log('Строка с 6.4 не найдена.');
     }
   } catch (error) {
+    await axios.get(
+      `http://home.teyhd.ru:3334/?num=${NUM_PARAM}&msg=ошибка%20при%20открытии%20файла`,
+    );
     console.error('Ошибка при создании Excel файла:', error);
   }
 });
 
+// Форма под пунктом 7.2.3
 router.post('/createExcel723', async (req, res) => {
   const tableData = req.body;
 
   try {
     const workbook = new exceljs.Workbook();
-    const newFolderPath = 'new';
-    const oldFolderPath = 'old';
 
     if (!fs.existsSync(newFolderPath)) {
       fs.mkdirSync(newFolderPath);
@@ -771,6 +1149,14 @@ router.post('/createExcel723', async (req, res) => {
 
     if (!filePath) {
       throw new Error('Файл с префиксом "table" не найден в папке "new"');
+    }
+
+    if (isFileLocked(filePath)) {
+      console.log('Файл заблокирован другим процессом.');
+      await axios.get(
+        `http://home.teyhd.ru:3334/?num=${NUM_PARAM}&msg=файл%20открыт.%20данные%20не%20добавлены`,
+      );
+      return;
     }
 
     await workbook.xlsx.readFile(filePath);
@@ -808,7 +1194,7 @@ router.post('/createExcel723', async (req, res) => {
         tableData.winner,
         'Призовые места по итогам командного первенства',
         '1-х мест',
-        tableData.commandData1,
+        tableData.commandData1 ? tableData.commandData1 * 30 : '',
         tableData.commandData1 * 20,
       ];
       const newRow2Values = [
@@ -972,11 +1358,15 @@ router.post('/createExcel723', async (req, res) => {
       fs.renameSync(filePath, path.join(oldFolderPath, path.basename(filePath)));
 
       console.log('Данные успешно вставлены после строки с значением 7.2.3');
+      await axios.get(`http://home.teyhd.ru:3334/?num=${NUM_PARAM}&msg=данные%20были%20добавлены`);
       res.send('Данные успешно вставлены');
     } else {
       console.log('Строка с 7.2.3 не найдена.');
     }
   } catch (error) {
+    await axios.get(
+      `http://home.teyhd.ru:3334/?num=${NUM_PARAM}&msg=ошибка%20при%20открытии%20файла`,
+    );
     console.error('Ошибка при создании Excel файла:', error);
   }
 });

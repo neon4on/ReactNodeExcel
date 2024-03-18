@@ -33,14 +33,14 @@ const Form51 = () => {
       ...prevState,
       [name]: value,
     }));
-    setCookie('tableData', { ...tableData, [name]: value }, { path: '/51', expires });
+    setCookie('tableData', { ...tableData, [name]: value }, { path: '/52', expires });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       console.log('Отправляемые данные:', tableData);
-      const response = await axios.post('http://localhost:4000/api/createExcel51', tableData);
+      const response = await axios.post('http://localhost:4000/api/createExcel52', tableData);
       console.log('Ответ сервера:', response.data);
     } catch (error) {
       console.error('Ошибка при отправке данных:', error);
@@ -235,8 +235,8 @@ const Form51 = () => {
           </tbody>
         </table>
         <div className="wrapper-button">
-          <button className="btn waves-effect waves-light" type="submit" name="action">
-            Создать Excel
+          <button className="btn waves-effect waves-light input-field" type="submit" name="action">
+            Отправить
             <i className="material-icons right"></i>
           </button>
         </div>
