@@ -50,7 +50,7 @@ const Form64 = () => {
         </h5>
         <label className="labelSelect">
           Выберите тип соревнований:
-          <select name="select" value={tableData.select} onChange={handleChange} required>
+          <select name="select" value={tableData.select || ''} onChange={handleChange} required>
             <option disabled value="DEFAULT">
               Не выбрано
             </option>
@@ -63,7 +63,7 @@ const Form64 = () => {
           className="materialize-textarea"
           type="text"
           name="winner"
-          value={tableData.winner}
+          value={tableData.winner || ''}
           onChange={handleChange}
           rows="20"
           cols="20"
@@ -76,13 +76,13 @@ const Form64 = () => {
           className="input-field col s6"
           name="commandData1"
           id="commandData1"
-          value={tableData.commandData1}
+          value={tableData.commandData1 || ''}
           onChange={handleChange}
         />
         <label htmlFor="commandData1">Количество</label>
         <div className="wrapper-button">
-          <button className="btn waves-effect waves-light" type="submit" name="action">
-            Создать Excel
+          <button className="btn waves-effect waves-light input-field" type="submit" name="action">
+            Отправить
             <i className="material-icons right"></i>
           </button>
         </div>

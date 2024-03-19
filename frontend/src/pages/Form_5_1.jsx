@@ -235,8 +235,8 @@ const Form51 = () => {
           </tbody>
         </table>
         <div className="wrapper-button">
-          <button className="btn waves-effect waves-light" type="submit" name="action">
-            Создать Excel
+          <button className="btn waves-effect waves-light input-field" type="submit" name="action">
+            Отправить
             <i className="material-icons right"></i>
           </button>
         </div>

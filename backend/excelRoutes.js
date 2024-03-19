@@ -75,11 +75,11 @@ router.post('/createExcel51', async function (req, res) {
 
     sheet.eachRow({ includeEmpty: false }, (row, index) => {
       const rowData = row.getCell(1).value;
-      if (rowData == 5.1 || rowData == '5,1' || rowData == '5.1') {
+      if (rowData == 5.1) {
         rowIndex = index;
         console.log(`Значение 5.1 найдено в строке ${index}.`);
       }
-      if (rowData == 5.2 || rowData == '5,2' || rowData == '5.2') {
+      if (rowData == 5.2) {
         rowEndIndex = index;
         console.log(`Значение 5.2 найдено в строке ${index}.`);
       }
@@ -237,7 +237,7 @@ router.post('/createExcel51', async function (req, res) {
           }
         }
       }
-
+      console.log(tableData);
       sheet.mergeCells(`A${rowIndex + 1}:A${rowIndex + 13}`);
       sheet.mergeCells(`B${rowIndex + 1}:B${rowIndex + 13}`);
       sheet.mergeCells(`C${rowIndex + 1}:C${rowIndex + 3}`);
@@ -396,17 +396,17 @@ router.post('/createExcel52', async function (req, res) {
 
     sheet.eachRow({ includeEmpty: false }, (row, index) => {
       const rowData = row.getCell(1).value;
-      if (rowData && (rowData == 5.2 || rowData == '5,2' || rowData == '5.2')) {
+      if (rowData && rowData == 5.2) {
         rowIndex = index;
         console.log(`Значение 5.2 найдено в строке ${index}.`);
       }
-      if ((rowData == 5.3 || rowData == '5,3' || rowData == '5.3') && flagSearch) {
+      if (rowData == 5.3 && flagSearch) {
         rowEndIndex = index;
         console.log(`Значение 5.3 найдено в строке ${index}.`);
         flagSearch = false;
       }
     });
-
+    console.log(tableData);
     if (rowIndex !== null) {
       console.log(`Строка с 5.2 найдена: ${rowIndex}`);
 
@@ -562,7 +562,7 @@ router.post('/createExcel52', async function (req, res) {
           }
         }
       }
-
+      console.log(tableData);
       sheet.mergeCells(`A${startRowIndex}:A${endRowIndex}`);
       sheet.mergeCells(`B${startRowIndex}:B${endRowIndex}`);
       sheet.mergeCells(`C${startRowIndex}:C${startRowIndex + 2}`);
@@ -755,7 +755,7 @@ router.post('/createExcel54', async (req, res) => {
         endFlagSearch = false;
       }
     });
-
+    console.log(tableData);
     if (rowIndex !== null) {
       const startRowIndex = rowIndex + 1;
       const endRowIndex = rowIndex + 3;
@@ -765,24 +765,24 @@ router.post('/createExcel54', async (req, res) => {
         tableData.winner,
         'Побед',
         '1-х мест',
-        tableData.commandData1 ? tableData.commandData1 * 30 : '',
-        tableData.commandData1 * rowEndRatio[0],
+        tableData.commandData1 ? tableData.commandData1 : '',
+        tableData.commandData1 ? tableData.commandData1 * rowEndRatio[0] : '',
       ];
       const newRow2Values = [
         '',
         '',
         'Призовых мест',
         '2-х мест',
-        tableData.commandData2,
-        tableData.commandData2 * rowEndRatio[1],
+        tableData.commandData2 ? tableData.commandData2 : '',
+        tableData.commandData2 ? tableData.commandData2 * rowEndRatio[1] : '',
       ];
       const newRow3Values = [
         '',
         '',
         'Отсутствие соревновательной составляющей',
         '3-х мест',
-        tableData.commandData3,
-        tableData.commandData3 * rowEndRatio[2],
+        tableData.commandData3 ? tableData.commandData3 : '',
+        tableData.commandData3 ? tableData.commandData3 * rowEndRatio[2] : '',
       ];
 
       sheet.unMergeCells(`A${rowIndex}:A${rowEndIndex - 1}`);
@@ -805,11 +805,11 @@ router.post('/createExcel54', async (req, res) => {
         }
       }
       sheet.unMergeCells(`A${rowEndIndex - 1}:A${rowEndIndex + 2}`);
-      sheet.mergeCells(`A${rowIndex}:A${rowEndIndex + 2}`);
-      sheet.mergeCells(`B${rowIndex + 1}:B${rowIndex + 3}`);
-      sheet.mergeCells(`C${rowIndex + 1}:D${rowIndex + 1}`);
-      sheet.mergeCells(`C${rowIndex + 2}:D${rowIndex + 2}`);
-      sheet.mergeCells(`C${rowIndex + 3}:D${rowIndex + 3}`);
+      // sheet.mergeCells(`A${rowIndex}:A${rowEndIndex + 2}`);
+      // sheet.mergeCells(`B${rowIndex + 1}:B${rowIndex + 3}`);
+      // sheet.mergeCells(`C${rowIndex + 1}:D${rowIndex + 1}`);
+      // sheet.mergeCells(`C${rowIndex + 2}:D${rowIndex + 2}`);
+      // sheet.mergeCells(`C${rowIndex + 3}:D${rowIndex + 3}`);
 
       for (let i = rowIndex + 1; i <= endRowIndex; i++) {
         const cellA = sheet.getCell(`A${i}`);
@@ -976,7 +976,7 @@ router.post('/createExcel64', async (req, res) => {
         break;
       }
     }
-
+    console.log(tableData);
     sheet.eachRow({ includeEmpty: false }, (row, index) => {
       const rowData = row.getCell(1).value;
       if (rowData == tableData.select && flagSearch) {
@@ -1000,8 +1000,8 @@ router.post('/createExcel64', async (req, res) => {
         tableData.winner,
         '',
         '',
-        tableData.commandData1 ? tableData.commandData1 * 30 : '',
-        tableData.commandData1 * rowEndRatio[0],
+        tableData.commandData1 ? tableData.commandData1 : '',
+        tableData.commandData1 ? tableData.commandData1 * rowEndRatio[0] : '',
       ];
 
       sheet.unMergeCells(`A${rowIndex}:A${rowEndIndex - 1}`);
@@ -1023,9 +1023,9 @@ router.post('/createExcel64', async (req, res) => {
       }
 
       sheet.unMergeCells(`A${rowIndex - 1}:A${rowEndIndex}`);
-      sheet.mergeCells(`A${rowIndex}:A${rowEndIndex}`);
+      // sheet.mergeCells(`A${rowIndex}:A${rowEndIndex}`);
       sheet.unMergeCells(`B${rowIndex + 1}:D${rowIndex + 1}`);
-      sheet.mergeCells(`B${rowIndex + 1}:D${rowIndex + 1}`);
+      // sheet.mergeCells(`B${rowIndex + 1}:D${rowIndex + 1}`);
 
       for (let i = rowIndex + 1; i <= endRowIndex; i++) {
         const cellA = sheet.getCell(`A${i}`);
@@ -1184,7 +1184,7 @@ router.post('/createExcel723', async (req, res) => {
         console.log(`Значение 7.2.4 найдено в строке ${index}.`);
       }
     });
-
+    console.log(tableData);
     if (rowIndex !== null) {
       const startRowIndex = rowIndex + 1;
       const endRowIndex = rowIndex + 7;
@@ -1194,56 +1194,58 @@ router.post('/createExcel723', async (req, res) => {
         tableData.winner,
         'Призовые места по итогам командного первенства',
         '1-х мест',
-        tableData.commandData1 ? tableData.commandData1 * 30 : '',
-        tableData.commandData1 * 20,
+        tableData.commandData1 ? tableData.commandData1 : '',
+        tableData.commandData1 ? tableData.commandData1 * 20 : '',
       ];
       const newRow2Values = [
         '',
         '',
         '',
         '2-х мест',
-        tableData.commandData2,
-        tableData.commandData2 * 15,
+        tableData.commandData2 ? tableData.commandData2 : '',
+        tableData.commandData2 ? tableData.commandData2 * 15 : '',
       ];
       const newRow3Values = [
         '',
         '',
         '',
         '3-х мест',
-        tableData.commandData3,
-        tableData.commandData3 * 10,
+        tableData.commandData3 ? tableData.commandData3 : '',
+        tableData.commandData3 ? tableData.commandData3 * 10 : '',
       ];
       const newRow4Values = [
         '',
         '',
         'Призовые места по итогам личного первенства',
         '1-х мест',
-        tableData.personalData1,
-        tableData.personalData1 * 20,
+        tableData.personalData1 ? tableData.personalData1 : '',
+        tableData.personalData1 ? tableData.personalData1 * 20 : '',
       ];
       const newRow5Values = [
         '',
         '',
         '',
         '2-х мест',
-        tableData.personalData2,
-        tableData.personalData2 * 15,
+        tableData.personalData2 ? tableData.personalData2 : '',
+        tableData.personalData2 ? tableData.personalData2 * 15 : '',
       ];
       const newRow6Values = [
         '',
         '',
         '',
         '3-х мест',
-        tableData.personalData3,
-        tableData.personalData3 * 10,
+        tableData.personalData3 ? tableData.personalData3 : '',
+        tableData.personalData3 ? tableData.personalData3 * 10 : '',
       ];
       const newRow7Values = [
         '',
         '',
         'Отсутствие соревновательной составляющей',
         '',
-        tableData.lackOfCompetitiveComponentData,
-        tableData.lackOfCompetitiveComponentData * 5,
+        tableData.lackOfCompetitiveComponentData ? tableData.lackOfCompetitiveComponentData : '',
+        tableData.lackOfCompetitiveComponentData
+          ? tableData.lackOfCompetitiveComponentData * 5
+          : '',
       ];
       sheet.unMergeCells(`A${rowIndex}:A${rowEndIndex - 1}`);
       sheet.spliceRows(rowIndex + 1, 0, newRow1Values);
