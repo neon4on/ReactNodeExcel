@@ -48,8 +48,11 @@ const Form51 = () => {
   };
 
   useEffect(() => {
-    setTableData(cookies.tableData || {});
-  }, [cookies.tableData]);
+    setTableData((prevTableData) => ({
+      ...prevTableData,
+      ...cookies.tableData,
+    }));
+  }, [cookies.tableData, setTableData]);
 
   return (
     <div className="container">
@@ -64,7 +67,7 @@ const Form51 = () => {
           className="materialize-textarea"
           type="text"
           name="winner"
-          value={tableData.winner}
+          value={tableData.winner || ''}
           onChange={handleChange}
           rows="20"
           cols="20"
@@ -81,7 +84,7 @@ const Form51 = () => {
                   type="text"
                   className="input-field col s6"
                   name="commandData1"
-                  value={tableData.commandData1}
+                  value={tableData.commandData1 || ''}
                   onChange={handleChange}
                 />
               </td>
@@ -93,7 +96,7 @@ const Form51 = () => {
                   type="text"
                   className="input-field col s6"
                   name="commandData2"
-                  value={tableData.commandData2}
+                  value={tableData.commandData2 || ''}
                   onChange={handleChange}
                 />
               </td>
@@ -105,7 +108,7 @@ const Form51 = () => {
                   type="text"
                   className="input-field col s6"
                   name="commandData3"
-                  value={tableData.commandData3}
+                  value={tableData.commandData3 || ''}
                   onChange={handleChange}
                 />
               </td>
@@ -118,7 +121,7 @@ const Form51 = () => {
                   type="text"
                   className="input-field col s6"
                   name="commandData11"
-                  value={tableData.commandData11}
+                  value={tableData.commandData11 || ''}
                   onChange={handleChange}
                 />
               </td>
@@ -130,7 +133,7 @@ const Form51 = () => {
                   type="text"
                   className="input-field col s6"
                   name="commandData21"
-                  value={tableData.commandData21}
+                  value={tableData.commandData21 || ''}
                   onChange={handleChange}
                 />
               </td>
@@ -142,7 +145,7 @@ const Form51 = () => {
                   type="text"
                   className="input-field col s6"
                   name="commandData31"
-                  value={tableData.commandData31}
+                  value={tableData.commandData31 || ''}
                   onChange={handleChange}
                 />
               </td>
@@ -155,7 +158,7 @@ const Form51 = () => {
                   type="text"
                   className="input-field col s6"
                   name="personalData1"
-                  value={tableData.personalData1}
+                  value={tableData.personalData1 || ''}
                   onChange={handleChange}
                 />
               </td>
@@ -167,7 +170,7 @@ const Form51 = () => {
                   type="text"
                   className="input-field col s6"
                   name="personalData2"
-                  value={tableData.personalData2}
+                  value={tableData.personalData2 || ''}
                   onChange={handleChange}
                 />
               </td>
@@ -179,7 +182,7 @@ const Form51 = () => {
                   type="text"
                   className="input-field col s6"
                   name="personalData3"
-                  value={tableData.personalData3}
+                  value={tableData.personalData3 || ''}
                   onChange={handleChange}
                 />
               </td>
@@ -191,7 +194,7 @@ const Form51 = () => {
                   type="text"
                   className="input-field col s6"
                   name="grandPrizeData"
-                  value={tableData.grandPrizeData}
+                  value={tableData.grandPrizeData || ''}
                   onChange={handleChange}
                 />
               </td>
@@ -203,7 +206,7 @@ const Form51 = () => {
                   type="text"
                   className="input-field col s6"
                   name="individualAchievementData"
-                  value={tableData.individualAchievementData}
+                  value={tableData.individualAchievementData || ''}
                   onChange={handleChange}
                 />
               </td>
@@ -215,7 +218,7 @@ const Form51 = () => {
                   type="text"
                   className="input-field col s6"
                   name="specialAwardsData"
-                  value={tableData.specialAwardsData}
+                  value={tableData.specialAwardsData || ''}
                   onChange={handleChange}
                 />
               </td>
@@ -227,7 +230,7 @@ const Form51 = () => {
                   type="text"
                   className="input-field col s6"
                   name="lackOfCompetitiveComponentData"
-                  value={tableData.lackOfCompetitiveComponentData}
+                  value={tableData.lackOfCompetitiveComponentData || ''}
                   onChange={handleChange}
                 />
               </td>

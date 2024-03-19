@@ -42,8 +42,11 @@ const Form723 = () => {
   };
 
   useEffect(() => {
-    setTableData(cookies.tableData || {});
-  }, [cookies.tableData]);
+    setTableData((prevTableData) => ({
+      ...prevTableData,
+      ...cookies.tableData,
+    }));
+  }, [cookies.tableData, setTableData]);
 
   return (
     <div className="container">
@@ -57,7 +60,7 @@ const Form723 = () => {
           className="materialize-textarea"
           type="text"
           name="winner"
-          value={tableData.winner}
+          value={tableData.winner || ''}
           onChange={handleChange}
           rows="20"
           cols="20"
@@ -74,7 +77,7 @@ const Form723 = () => {
                   type="text"
                   className="input-field col s6"
                   name="commandData1"
-                  value={tableData.commandData1}
+                  value={tableData.commandData1 || ''}
                   onChange={handleChange}
                 />
               </td>
@@ -86,7 +89,7 @@ const Form723 = () => {
                   type="text"
                   className="input-field col s6"
                   name="commandData2"
-                  value={tableData.commandData2}
+                  value={tableData.commandData2 || ''}
                   onChange={handleChange}
                 />
               </td>
@@ -98,7 +101,7 @@ const Form723 = () => {
                   type="text"
                   className="input-field col s6"
                   name="commandData3"
-                  value={tableData.commandData3}
+                  value={tableData.commandData3 || ''}
                   onChange={handleChange}
                 />
               </td>
@@ -111,7 +114,7 @@ const Form723 = () => {
                   type="text"
                   className="input-field col s6"
                   name="personalData1"
-                  value={tableData.personalData1}
+                  value={tableData.personalData1 || ''}
                   onChange={handleChange}
                 />
               </td>
@@ -123,7 +126,7 @@ const Form723 = () => {
                   type="text"
                   className="input-field col s6"
                   name="personalData2"
-                  value={tableData.personalData2}
+                  value={tableData.personalData2 || ''}
                   onChange={handleChange}
                 />
               </td>
@@ -135,7 +138,7 @@ const Form723 = () => {
                   type="text"
                   className="input-field col s6"
                   name="personalData3"
-                  value={tableData.personalData3}
+                  value={tableData.personalData3 || ''}
                   onChange={handleChange}
                 />
               </td>
@@ -148,7 +151,7 @@ const Form723 = () => {
                   type="text"
                   className="input-field col s6"
                   name="lackOfCompetitiveComponentData"
-                  value={tableData.lackOfCompetitiveComponentData}
+                  value={tableData.lackOfCompetitiveComponentData || ''}
                   onChange={handleChange}
                 />
               </td>

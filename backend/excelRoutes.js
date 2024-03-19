@@ -805,11 +805,11 @@ router.post('/createExcel54', async (req, res) => {
         }
       }
       sheet.unMergeCells(`A${rowEndIndex - 1}:A${rowEndIndex + 2}`);
-      // sheet.mergeCells(`A${rowIndex}:A${rowEndIndex + 2}`);
-      // sheet.mergeCells(`B${rowIndex + 1}:B${rowIndex + 3}`);
-      // sheet.mergeCells(`C${rowIndex + 1}:D${rowIndex + 1}`);
-      // sheet.mergeCells(`C${rowIndex + 2}:D${rowIndex + 2}`);
-      // sheet.mergeCells(`C${rowIndex + 3}:D${rowIndex + 3}`);
+      sheet.mergeCells(`A${rowIndex}:A${rowEndIndex + 2}`);
+      sheet.mergeCells(`B${rowIndex + 1}:B${rowIndex + 3}`);
+      sheet.mergeCells(`C${rowIndex + 1}:D${rowIndex + 1}`);
+      sheet.mergeCells(`C${rowIndex + 2}:D${rowIndex + 2}`);
+      sheet.mergeCells(`C${rowIndex + 3}:D${rowIndex + 3}`);
 
       for (let i = rowIndex + 1; i <= endRowIndex; i++) {
         const cellA = sheet.getCell(`A${i}`);
@@ -1023,9 +1023,9 @@ router.post('/createExcel64', async (req, res) => {
       }
 
       sheet.unMergeCells(`A${rowIndex - 1}:A${rowEndIndex}`);
-      // sheet.mergeCells(`A${rowIndex}:A${rowEndIndex}`);
+      sheet.mergeCells(`A${rowIndex}:A${rowEndIndex}`);
       sheet.unMergeCells(`B${rowIndex + 1}:D${rowIndex + 1}`);
-      // sheet.mergeCells(`B${rowIndex + 1}:D${rowIndex + 1}`);
+      sheet.mergeCells(`B${rowIndex + 1}:D${rowIndex + 1}`);
 
       for (let i = rowIndex + 1; i <= endRowIndex; i++) {
         const cellA = sheet.getCell(`A${i}`);

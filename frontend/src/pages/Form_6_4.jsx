@@ -12,7 +12,7 @@ const Form64 = () => {
       cookies.tableData || {
         winner: '',
         commandData1: '',
-        select: '',
+        select: '6.4.2',
       },
   );
 
@@ -26,8 +26,11 @@ const Form64 = () => {
   };
 
   useEffect(() => {
-    setTableData(cookies.tableData || {});
-  }, [cookies.tableData]);
+    setTableData((prevTableData) => ({
+      ...prevTableData,
+      ...cookies.tableData,
+    }));
+  }, [cookies.tableData, setTableData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,6 +57,8 @@ const Form64 = () => {
             <option disabled value="DEFAULT">
               Не выбрано
             </option>
+            <option value="6.4.2">Региональный</option>
+            <option value="6.4.3">Всероссийский</option>
             <option value="6.4.2">Региональный</option>
             <option value="6.4.3">Всероссийский</option>
           </select>
