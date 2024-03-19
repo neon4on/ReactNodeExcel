@@ -12,7 +12,7 @@ const Form64 = () => {
       cookies.tableData || {
         winner: '',
         commandData1: '',
-        select: '6.4.2',
+        select: '6.4.1',
       },
   );
 
@@ -57,10 +57,10 @@ const Form64 = () => {
             <option disabled value="DEFAULT">
               Не выбрано
             </option>
+            <option value="6.4.1">Муниципальный</option>
             <option value="6.4.2">Региональный</option>
             <option value="6.4.3">Всероссийский</option>
-            <option value="6.4.2">Региональный</option>
-            <option value="6.4.3">Всероссийский</option>
+            <option value="6.4.4">Международный</option>
           </select>
         </label>
         <textarea

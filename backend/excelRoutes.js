@@ -911,11 +911,13 @@ router.post('/createExcel54', async (req, res) => {
 // Форма под пунктом 6.4
 router.post('/createExcel64', async (req, res) => {
   const tableData = req.body;
-  const arr = ['6.4.2', '6.4.3', '6.5'];
+  const arr = ['6.4.1', '6.4.2', '6.4.3', '6.4.4', '6.5'];
   const ratio = {
-    '6.4.2': [],
+    '6.4.1': [],
+    '6.4.2': [1],
     '6.4.3': [5],
-    6.5: [50],
+    '6.4.4': [50],
+    6.5: [100],
   };
   try {
     const workbook = new exceljs.Workbook();
@@ -949,7 +951,13 @@ router.post('/createExcel64', async (req, res) => {
       return;
     }
 
-    await workbook.xlsx.readFile(filePath);
+    console.log('ОТКРЫВАЕМ ФАЙЛ!');
+
+    try {
+      await workbook.xlsx.readFile(filePath);
+    } catch (error) {
+      console.error('Ошибка при чтении файла Excel:', error);
+    }
 
     const sheet = workbook.getWorksheet('Лист1');
 
@@ -966,6 +974,36 @@ router.post('/createExcel64', async (req, res) => {
     let flagSearch = true;
     let endFlagSearch = true;
 
+    console.log('НАЧИНАЕМ!');
+
+    let rowIndex64_1 = null;
+    let rowIndex64_2 = null;
+    let rowIndex64_3 = null;
+    let rowIndex64_4 = null;
+    let rowIndex64_1_Flag = true;
+    let rowIndex64_2_Flag = true;
+    let rowIndex64_3_Flag = true;
+    let rowIndex64_4_Flag = true;
+    sheet.eachRow({ includeEmpty: false }, (row, index) => {
+      const rowData = row.getCell(1).value;
+      if (rowData === '6.4.1' && rowIndex64_1_Flag) {
+        rowIndex64_1 = index;
+        rowIndex64_1_Flag = false;
+      }
+      if (rowData === '6.4.4' && rowIndex64_4_Flag) {
+        rowIndex64_4 = index;
+        rowIndex64_4_Flag = false;
+      }
+      if (rowData === '6.4.2' && rowIndex64_2_Flag) {
+        rowIndex64_2 = index;
+        rowIndex64_2_Flag = false;
+      }
+      if ((rowData === '6.5' || rowData === 6.5) && rowIndex64_3_Flag) {
+        rowIndex64_3 = index;
+        rowIndex64_3_Flag = false;
+      }
+    });
+
     for (let i = 0; i < arr.length; i++) {
       const currentKey = arr[i];
       if (tableData.select === currentKey && ratio.hasOwnProperty(currentKey)) {
@@ -977,19 +1015,60 @@ router.post('/createExcel64', async (req, res) => {
       }
     }
     console.log(tableData);
+
+    if (!rowIndex64_1) {
+      const newRow = ['6.4.1', 'Муниципальный Уровень', '', '', '', ''];
+      sheet.spliceRows(rowIndex64_2, 0, newRow);
+      sheet.unMergeCells(`B${rowIndex64_2}:G${rowIndex64_2}`);
+      sheet.mergeCells(`B${rowIndex64_2}:G${rowIndex64_2}`);
+      const mergedCell = sheet.getCell(`B${rowIndex64_2}`);
+      mergedCell.style = {
+        font: { bold: true, name: 'Times New Roman', size: 12 },
+        alignment: { vertical: 'middle', horizontal: 'left', wrapText: true },
+        border: {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thick' },
+        },
+      };
+    }
+
+    if (!rowIndex64_4) {
+      const newRow = ['6.4.4', 'Международный Уровень', '', '', '', ''];
+      sheet.spliceRows(rowIndex64_3 + 1, 0, newRow);
+      sheet.unMergeCells(`B${rowIndex64_3 + 1}:G${rowIndex64_3 + 1}`);
+      sheet.mergeCells(`B${rowIndex64_3 + 1}:G${rowIndex64_3 + 1}`);
+      const mergedCell = sheet.getCell(`B${rowIndex64_3 + 1}`);
+      mergedCell.style = {
+        font: { bold: true, name: 'Times New Roman', size: 12 },
+        alignment: { vertical: 'middle', horizontal: 'left', wrapText: true },
+        border: {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thick' },
+        },
+      };
+    }
+
+    console.log('ПРИВЕТ!');
+
     sheet.eachRow({ includeEmpty: false }, (row, index) => {
       const rowData = row.getCell(1).value;
       if (rowData == tableData.select && flagSearch) {
         rowIndex = index;
-        console.log(`Значение ${tableData.select} найдено в строке ${index}.`);
+        console.log(`1 Значение ${tableData.select} найдено в строке ${index}.`);
         flagSearch = false;
       }
       if (rowData == rowEnd && endFlagSearch) {
         rowEndIndex = index;
-        console.log(`Значение ${rowEnd} найдено в строке ${index}.`);
+        console.log(`2 Значение ${rowEnd} найдено в строке ${index}.`);
         endFlagSearch = false;
       }
     });
+
+    console.log('НАШЁЛ!');
 
     if (rowIndex !== null) {
       const startRowIndex = rowIndex + 1;
@@ -1022,7 +1101,7 @@ router.post('/createExcel64', async (req, res) => {
         }
       }
 
-      sheet.unMergeCells(`A${rowIndex - 1}:A${rowEndIndex}`);
+      sheet.unMergeCells(`A${rowIndex}:A${rowEndIndex}`);
       sheet.mergeCells(`A${rowIndex}:A${rowEndIndex}`);
       sheet.unMergeCells(`B${rowIndex + 1}:D${rowIndex + 1}`);
       sheet.mergeCells(`B${rowIndex + 1}:D${rowIndex + 1}`);
@@ -1097,6 +1176,76 @@ router.post('/createExcel64', async (req, res) => {
         cellE.alignment = { vertical: 'middle', horizontal: 'center' };
         cellF.alignment = { vertical: 'middle', horizontal: 'center' };
       }
+
+      let cellA1 = 4;
+      let cellA2 = 4;
+      let cellA3 = 4;
+      let cellA4 = 4;
+      let cellA1Flag = true;
+      let cellA2Flag = true;
+      let cellA3Flag = true;
+      let cellA4Flag = true;
+      sheet.eachRow({ includeEmpty: false }, (row, index) => {
+        const rowData = row.getCell(1).value;
+        if (rowData === '6.4.1' && cellA1Flag) {
+          cellA1 = index;
+          const mergedCell = sheet.getCell(`B${index}`);
+          mergedCell.style = {
+            font: { bold: true, name: 'Times New Roman', size: 12 },
+            alignment: { vertical: 'middle', horizontal: 'left', wrapText: true },
+            border: {
+              top: { style: 'thin' },
+              left: { style: 'thin' },
+              bottom: { style: 'thin' },
+              right: { style: 'thick' },
+            },
+          };
+          cellA1Flag = false;
+        }
+        if (rowData === '6.4.2' && cellA2Flag) {
+          cellA2 = index;
+          const mergedCell = sheet.getCell(`B${index}`);
+          mergedCell.style = {
+            font: { bold: true, name: 'Times New Roman', size: 12 },
+            alignment: { vertical: 'middle', horizontal: 'left', wrapText: true },
+            border: {
+              top: { style: 'thin' },
+              left: { style: 'thin' },
+              bottom: { style: 'thin' },
+              right: { style: 'thick' },
+            },
+          };
+          cellA2Flag = false;
+        }
+        if (rowData === '6.4.3' && cellA3Flag) {
+          const mergedCell = sheet.getCell(`B${index}`);
+          mergedCell.style = {
+            font: { bold: true, name: 'Times New Roman', size: 12 },
+            alignment: { vertical: 'middle', horizontal: 'left', wrapText: true },
+            border: {
+              top: { style: 'thin' },
+              left: { style: 'thin' },
+              bottom: { style: 'thin' },
+              right: { style: 'thick' },
+            },
+          };
+          cellA3Flag = false;
+        }
+        if (rowData === '6.4.4' && cellA4Flag) {
+          const mergedCell = sheet.getCell(`B${index}`);
+          mergedCell.style = {
+            font: { bold: true, name: 'Times New Roman', size: 12 },
+            alignment: { vertical: 'middle', horizontal: 'left', wrapText: true },
+            border: {
+              top: { style: 'thin' },
+              left: { style: 'thin' },
+              bottom: { style: 'thin' },
+              right: { style: 'thick' },
+            },
+          };
+          cellA4Flag = false;
+        }
+      });
 
       const currentDate = new Date();
       const dateString = currentDate.toISOString().slice(0, 10);
