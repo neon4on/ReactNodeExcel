@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const exceljs = require('exceljs');
 const axios = require('axios');
+const lockfile = require('lockfile');
 
 // Константы
 const NUM_PARAM = '1986228881';
@@ -24,7 +25,22 @@ const isFileLocked = (filePath) => {
   }
 };
 
-// Общие стили для 6.4 с B по G
+const checkLocksInFolder = () => {
+  const files = fs.readdirSync(newFolderPath);
+  files.forEach((file) => {
+    const filePath = path.join(newFolderPath, file);
+    try {
+      fs.renameSync(filePath, filePath);
+      console.log(`Файл ${filePath} не заблокирован.`);
+    } catch (error) {
+      if (error.code === 'EBUSY') {
+        console.log(`Файл ${filePath} заблокирован другим процессом.`);
+      } else {
+        console.error(`Ошибка при проверке файла ${filePath}:`, error);
+      }
+    }
+  });
+};
 
 // Форма под пунктом 5.1
 router.post('/createExcel51', async function (req, res) {
@@ -328,10 +344,9 @@ router.post('/createExcel51', async function (req, res) {
       const fileName = `table_${dateString}_${timeString}.xlsx`;
 
       const newFilePath = path.join(newFolderPath, fileName);
-
+      fs.renameSync(filePath, path.join(oldFolderPath, path.basename(filePath)));
       await workbook.xlsx.writeFile(newFilePath);
 
-      fs.renameSync(filePath, path.join(oldFolderPath, path.basename(filePath)));
       await axios.get(`http://home.teyhd.ru:3334/?num=${NUM_PARAM}&msg=данные%20были%20добавлены`);
       console.log('Данные успешно вставлены после строки с значением 5.1.');
       res.send('Данные успешно вставлены');
@@ -654,9 +669,8 @@ router.post('/createExcel52', async function (req, res) {
 
       const newFilePath = path.join(newFolderPath, fileName);
 
-      await workbook.xlsx.writeFile(newFilePath);
-
       fs.renameSync(filePath, path.join(oldFolderPath, path.basename(filePath)));
+      await workbook.xlsx.writeFile(newFilePath);
       await axios.get(`http://home.teyhd.ru:3334/?num=${NUM_PARAM}&msg=данные%20были%20добавлены`);
       console.log('Данные успешно вставлены после строки с значением 5.2.');
       res.send('Данные успешно вставлены');
@@ -892,10 +906,8 @@ router.post('/createExcel54', async (req, res) => {
 
       const newFilePath = path.join(newFolderPath, fileName);
 
-      await workbook.xlsx.writeFile(newFilePath);
-
       fs.renameSync(filePath, path.join(oldFolderPath, path.basename(filePath)));
-
+      await workbook.xlsx.writeFile(newFilePath);
       console.log('Данные успешно вставлены после строки с значением 5.4.');
       await axios.get(`http://home.teyhd.ru:3334/?num=${NUM_PARAM}&msg=данные%20были%20добавлены`);
       res.send('Данные успешно вставлены');
@@ -1240,9 +1252,8 @@ router.post('/createExcel64', async (req, res) => {
 
       const newFilePath = path.join(newFolderPath, fileName);
 
-      await workbook.xlsx.writeFile(newFilePath);
-
       fs.renameSync(filePath, path.join(oldFolderPath, path.basename(filePath)));
+      await workbook.xlsx.writeFile(newFilePath);
 
       console.log('Данные успешно вставлены после строки с значением 6.4.');
       await axios.get(`http://home.teyhd.ru:3334/?num=${NUM_PARAM}&msg=данные%20были%20добавлены`);
@@ -1490,9 +1501,8 @@ router.post('/createExcel723', async (req, res) => {
 
       const newFilePath = path.join(newFolderPath, fileName);
 
-      await workbook.xlsx.writeFile(newFilePath);
-
       fs.renameSync(filePath, path.join(oldFolderPath, path.basename(filePath)));
+      await workbook.xlsx.writeFile(newFilePath);
 
       console.log('Данные успешно вставлены после строки с значением 7.2.3');
       await axios.get(`http://home.teyhd.ru:3334/?num=${NUM_PARAM}&msg=данные%20были%20добавлены`);
