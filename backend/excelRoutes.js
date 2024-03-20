@@ -24,6 +24,8 @@ const isFileLocked = (filePath) => {
   }
 };
 
+// Общие стили для 6.4 с B по G
+
 // Форма под пунктом 5.1
 router.post('/createExcel51', async function (req, res) {
   const tableData = req.body;
@@ -1188,64 +1190,48 @@ router.post('/createExcel64', async (req, res) => {
       sheet.eachRow({ includeEmpty: false }, (row, index) => {
         const rowData = row.getCell(1).value;
         if (rowData === '6.4.1' && cellA1Flag) {
-          cellA1 = index;
-          const mergedCell = sheet.getCell(`B${index}`);
-          mergedCell.style = {
-            font: { bold: true, name: 'Times New Roman', size: 12 },
-            alignment: { vertical: 'middle', horizontal: 'left', wrapText: true },
-            border: {
-              top: { style: 'thin' },
-              left: { style: 'thin' },
-              bottom: { style: 'thin' },
-              right: { style: 'thick' },
-            },
-          };
+          const startCell = sheet.getCell(`B${index}`);
+          const endCell = sheet.getCell(`G${index}`);
+          applyStyle(startCell, endCell);
           cellA1Flag = false;
         }
         if (rowData === '6.4.2' && cellA2Flag) {
-          cellA2 = index;
-          const mergedCell = sheet.getCell(`B${index}`);
-          mergedCell.style = {
-            font: { bold: true, name: 'Times New Roman', size: 12 },
-            alignment: { vertical: 'middle', horizontal: 'left', wrapText: true },
-            border: {
-              top: { style: 'thin' },
-              left: { style: 'thin' },
-              bottom: { style: 'thin' },
-              right: { style: 'thick' },
-            },
-          };
+          const startCell = sheet.getCell(`B${index}`);
+          const endCell = sheet.getCell(`G${index}`);
+          applyStyle(startCell, endCell);
           cellA2Flag = false;
         }
         if (rowData === '6.4.3' && cellA3Flag) {
-          const mergedCell = sheet.getCell(`B${index}`);
-          mergedCell.style = {
-            font: { bold: true, name: 'Times New Roman', size: 12 },
-            alignment: { vertical: 'middle', horizontal: 'left', wrapText: true },
-            border: {
-              top: { style: 'thin' },
-              left: { style: 'thin' },
-              bottom: { style: 'thin' },
-              right: { style: 'thick' },
-            },
-          };
+          const startCell = sheet.getCell(`B${index}`);
+          const endCell = sheet.getCell(`G${index}`);
+          applyStyle(startCell, endCell);
           cellA3Flag = false;
         }
         if (rowData === '6.4.4' && cellA4Flag) {
-          const mergedCell = sheet.getCell(`B${index}`);
-          mergedCell.style = {
-            font: { bold: true, name: 'Times New Roman', size: 12 },
-            alignment: { vertical: 'middle', horizontal: 'left', wrapText: true },
-            border: {
-              top: { style: 'thin' },
-              left: { style: 'thin' },
-              bottom: { style: 'thin' },
-              right: { style: 'thick' },
-            },
-          };
+          const startCell = sheet.getCell(`B${index}`);
+          const endCell = sheet.getCell(`G${index}`);
+          applyStyle(startCell, endCell);
           cellA4Flag = false;
         }
       });
+
+      function applyStyle(startCell, endCell) {
+        for (let i = startCell.row; i <= endCell.row; i++) {
+          for (let j = startCell.col; j <= endCell.col; j++) {
+            const cell = sheet.getCell(i, j);
+            cell.style = {
+              font: { bold: true, name: 'Times New Roman', size: 12 },
+              alignment: { vertical: 'middle', horizontal: 'left', wrapText: true },
+              border: {
+                top: { style: 'thin' },
+                left: { style: 'thin' },
+                bottom: { style: 'thin' },
+                right: { style: 'thick' },
+              },
+            };
+          }
+        }
+      }
 
       const currentDate = new Date();
       const dateString = currentDate.toISOString().slice(0, 10);
